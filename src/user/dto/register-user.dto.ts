@@ -25,11 +25,11 @@ export class RegisterUserDto {
   @MaxLength(10)
   @MinLength(10)
   readonly roll: string;
-
+  
   @ApiProperty()
-  @IsEnum(Gender)
+  @IsString()
   @IsNotEmpty()
-  readonly gender: string;
+  readonly department: string;
 
   @ApiProperty()
   @IsString()

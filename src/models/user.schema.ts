@@ -16,6 +16,9 @@ export class User {
   gender: string;
 
   @Prop()
+  department: string;
+
+  @Prop()
   profilePic: string;
 
   @Prop({ lowercase: true, unique: true, required: true })

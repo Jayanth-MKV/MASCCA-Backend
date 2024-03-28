@@ -12,7 +12,6 @@ import { User, UserDocument } from 'src/models/user.schema';
 import { Model } from 'mongoose';
 import { HashService } from 'src/hash/hash.service';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { Http2ServerResponse } from 'http2';
 
 @Injectable()
 export class UserService {

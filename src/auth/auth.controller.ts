@@ -3,11 +3,29 @@ import { iLoginDto, sLoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { ilocalAuthGuard, slocalAuthGuard } from './guards/local.guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { CreateInstructorDto } from 'src/instructor/dto/create-instructor.dto';
+import { InstructorService } from 'src/instructor/instructor.service';
+import { UserService } from 'src/user/user.service';
+import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private readonly instructorService: InstructorService,
+    private readonly userService: UserService,
+  ) {}
+
+  @Post('iregister')
+  Registeri(@Body() CreateInstructorDto: CreateInstructorDto) {
+    return this.instructorService.registerInstructor(CreateInstructorDto);
+  }
+
+  @Post('sregister')
+  Registers(@Body() RegisterUserDto: RegisterUserDto) {
+    return this.userService.registerUser(RegisterUserDto);
+  }
 
   @UseGuards(slocalAuthGuard)
   @Post('/slogin')

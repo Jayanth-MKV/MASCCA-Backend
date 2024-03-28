@@ -24,8 +24,6 @@ export class CreateInstructorDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(10)
-  @MinLength(10)
   readonly Department: string;
 
   @ApiProperty()

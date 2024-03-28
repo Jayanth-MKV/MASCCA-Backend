@@ -13,6 +13,14 @@ import { InstructorModule } from './instructor/instructor.module';
 import { PassportModule } from '@nestjs/passport';
 import { iLocalStrategy, sLocalStrategy } from './auth/strategies/local-strategy';
 import { InstructorJWTStrategy, StudentJWTStrategy } from './auth/strategies/jwt.strategy';
+import { SupabaseProvider } from './providers/supabase.provider';
+import { TestService } from './test/test.service';
+import { UploadService } from './upload/upload.service';
+import { TestModule } from './test/test.module';
+import { QuestionModule } from './question/question.module';
+import { SubQuestionModule } from './sub-question/sub-question.module';
+import { SubmissionModule } from './submission/submission.module';
+import { EvaluationModule } from './evaluation/evaluation.module';
 
 @Module({
   imports: [
@@ -59,16 +67,23 @@ import { InstructorJWTStrategy, StudentJWTStrategy } from './auth/strategies/jwt
     AuthModule,
     UserModule,
     InstructorModule,
+    TestModule,
+    QuestionModule,
+    SubQuestionModule,
+    SubmissionModule,
+    EvaluationModule,
   ],
   controllers: [AppController],
   providers: [
+    SupabaseProvider,
     AppService,
     HashService,
     AuthService,
     sLocalStrategy,
     iLocalStrategy,
     StudentJWTStrategy,
-    InstructorJWTStrategy
+    InstructorJWTStrategy,
+    UploadService,
   ],
 })
 export class AppModule {
