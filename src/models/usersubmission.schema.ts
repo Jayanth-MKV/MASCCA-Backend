@@ -14,14 +14,15 @@ export class UserSubmission {
     required: true,
     type: [
       {
-        qid: SchemaTypes.ObjectId,
+        qid: { type: SchemaTypes.ObjectId, ref: 'Question' },
         subQ: [
           {
-            sqid: SchemaTypes.ObjectId,
+            sqid: { type: SchemaTypes.ObjectId, ref: 'SubQuestion' },
             type: String,
             answer: String,
             audiofileurl: String,
             audiototext: String,
+            timeTaken: String,
           },
         ],
       },
@@ -35,6 +36,7 @@ export class UserSubmission {
       answer: string;
       audiofileurl?: string;
       audiototext?: string;
+      timeTaken?: string;
     }>;
   }>;
 }

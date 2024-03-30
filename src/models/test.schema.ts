@@ -16,13 +16,13 @@ export class Test {
   @Prop()
   tandc: string;
 
-  @Prop()
+  @Prop({ required: true })
   testSecret: string;
 
-  @Prop({ type: [{ type: SchemaTypes.ObjectId, ref: 'Question' }] })
-  questions: string[];
+  // @Prop({ type: [{ type: SchemaTypes.ObjectId, ref: 'Question' }] })
+  // questions: string[];
 
-  @Prop({ required: true })
+  @Prop()
   durationMinutes: number;
 
   @Prop({ type: Date })
@@ -32,8 +32,11 @@ export class Test {
   endTime: Date;
 
   // Created by instructor
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'Instructor' })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'Instructor', required: true })
   createdBy: string;
+
+  @Prop({default:false})
+  published: boolean;
 }
 
 export type TestDocument = Test & Document;

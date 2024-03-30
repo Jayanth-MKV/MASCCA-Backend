@@ -7,25 +7,70 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { StudentAuthGuard } from 'src/auth/guards/jwt.guard';
+import { UploadService } from 'src/upload/upload.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { StorageObjectDto } from 'src/upload/dto/storage-object.dto';
 
 @Controller('user')
 @ApiTags('user')
-@UseGuards(StudentAuthGuard)
+// @UseGuards(StudentAuthGuard)
 @ApiBearerAuth()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly uploadService: UploadService,
+  ) {}
 
-  @Post('register')
-  Register(@Body() RegisterUserDto: RegisterUserDto) {
-    return this.userService.registerUser(RegisterUserDto);
+
+
+  @Get('/audio/:testid')
+  async getData(@Param('testid') testid:string): Promise<any> {
+    return this.uploadService.fetchDataFromSupabase(testid);
   }
+
+  @Post('upload/:testid')
+  @ApiParam({
+    name: 'testid',
+    description: 'folder name - Test ID',
+    type: 'string',
+    schema: {
+      example: '123-123-123-123',
+    },
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @Param('testid') folder: string,
+    @Body() data: StorageObjectDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: /\**.(wav|mp3|aiff|ogg)$/ }),
+        ],
+      })
+    )
+    file: Express.Multer.File,
+  ) {
+    console.log(file);
+    console.log(folder);
+    const uploadedData = await this.uploadService.uploadFileToSupabase(
+      file,
+      folder,
+    );
+    return uploadedData;
+  }
+
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {

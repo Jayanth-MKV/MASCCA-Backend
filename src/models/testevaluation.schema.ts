@@ -7,7 +7,7 @@ export class TestEvaluation {
   testId: string;
 
   @Prop({ type: SchemaTypes.ObjectId, ref: 'User' })
-  studentId: string;
+  userId: string;
 
   @Prop({
     required: true,
@@ -17,7 +17,7 @@ export class TestEvaluation {
         question_confidence: Number,
         subQ: [
           {
-            sqid: SchemaTypes.ObjectId,
+            sqid: { type: SchemaTypes.ObjectId, ref: 'SubQuestion' },
             type: String,
             sub_question_confidence: Number,
             audiotextRelevancy: Number,
@@ -27,6 +27,7 @@ export class TestEvaluation {
       },
     ],
   })
+    
   results: Array<{
     qid: string;
     question_confidence: number;

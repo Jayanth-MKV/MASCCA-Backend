@@ -4,17 +4,22 @@ import { CreateInstructorDto } from './dto/create-instructor.dto';
 import { UpdateInstructorDto } from './dto/update-instructor.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { InstructorAuthGuard } from 'src/auth/guards/jwt.guard';
+import { UploadService } from 'src/upload/upload.service';
 
 @Controller('instructor')
 @ApiTags('instructor')
 @UseGuards(InstructorAuthGuard)
 @ApiBearerAuth()
 export class InstructorController {
-  constructor(private readonly instructorService: InstructorService) {}
+  constructor(
+    private readonly instructorService: InstructorService,
+    private readonly uploadService: UploadService,
+  ) {}
 
-  @Post('register')
-  Register(@Body() CreateInstructorDto:CreateInstructorDto) {
-    return this.instructorService.registerInstructor(CreateInstructorDto);
+
+  @Delete('test/:folderName')
+  async deleteFolder(@Param('folderName') folderName: string): Promise<void> {
+    return await this.uploadService.deleteFolderInSupabase(folderName);
   }
 
   @Post()
