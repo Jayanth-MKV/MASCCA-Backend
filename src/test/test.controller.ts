@@ -12,13 +12,12 @@ import {
 import { TestService } from './test.service';
 import { CreateTestDto } from './dto/create-test.dto';
 import { UpdateTestDto } from './dto/update-test.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { InstructorAuthGuard } from 'src/auth/guards/jwt.guard';
+import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { InstructorAuthGuard, StudentAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('test')
 // @ApiTags('test')
 @ApiTags('instructor')
-@UseGuards(InstructorAuthGuard)
 @ApiBearerAuth()
 export class TestController {
   constructor(private readonly testService: TestService) {}
@@ -27,18 +26,21 @@ export class TestController {
  
  
   @Post('create')
+  @UseGuards(InstructorAuthGuard)
   create(@Body() createTestDto: CreateTestDto, @Req() req: any) {
     const id = req?.user?.id;
     return this.testService.create(createTestDto, id);
   }
 
   @Get('invitelink/:testid')
+  @UseGuards(InstructorAuthGuard)
   getInviteLink(@Param('testid') id:string) {
 
     return this.testService.createInviteLink(id);
   }
 
   @Get('instructor/mytests')
+  @UseGuards(InstructorAuthGuard)
   findAll(@Req() req: Request) {
     const user = (req as any)?.user;
 
@@ -46,6 +48,7 @@ export class TestController {
   }
 
   @Get('instructor/mytests/ongoing')
+  @UseGuards(InstructorAuthGuard)
   findAllOngoing(@Req() req: Request) {
     const user = (req as any)?.user;
 
@@ -58,22 +61,26 @@ export class TestController {
 
   @ApiTags('user')
   @Get('user/:id')
+  @UseGuards(StudentAuthGuard)
   findOneU(@Param('id') id: string) {
     return this.testService.findOneU(id);
   }
 
   @Get('instructor/:id')
+  @UseGuards(InstructorAuthGuard)
   findOneI(@Param('id') id: string, @Req() req: Request) {
     const user = (req as any)?.user;
     return this.testService.findOneI(id, (user as any)?.id);
   }
 
   @Patch(':id')
+  @UseGuards(InstructorAuthGuard)
   update(@Param('id') id: string, @Body() updateTestDto: UpdateTestDto) {
     return this.testService.update(id, updateTestDto);
   }
 
   @Delete(':id')
+  @UseGuards(InstructorAuthGuard)
   remove(@Param('id') id: string) {
     return this.testService.remove(id);
   }

@@ -43,6 +43,7 @@
     "passport-strategy": "^1.0.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "send-any-mail": "^0.0.1",
     "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1"
   },
