@@ -8,6 +8,7 @@ import {
   Delete,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { TestService } from './test.service';
 import { CreateTestDto } from './dto/create-test.dto';
@@ -60,9 +61,9 @@ export class TestController {
   // }
 
   @ApiTags('user')
-  @Get('user/:id')
+  @Get('user/:testid')
   @UseGuards(StudentAuthGuard)
-  findOneU(@Param('id') id: string) {
+  findOneU(@Param('testid') id: string) {
     return this.testService.findOneU(id);
   }
 

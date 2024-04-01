@@ -7,11 +7,13 @@ import { HashService } from 'src/hash/hash.service';
 import { SupabaseProvider } from 'src/providers/supabase.provider';
 import { UploadService } from 'src/upload/upload.service';
 import { TestModule } from 'src/test/test.module';
+import { SubmissionModule } from 'src/submission/submission.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    TestModule
+    TestModule,
+    SubmissionModule
   ],
   controllers: [UserController],
   providers: [UserService, HashService,UploadService,SupabaseProvider],

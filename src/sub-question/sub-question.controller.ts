@@ -16,11 +16,11 @@ export class SubQuestionController {
     return this.subQuestionService.findAll(id);
   }
 
-  @ApiTags('user')
-  @Get('user/:id')
-  findOneU(@Param('id') id: string) {
-    return this.subQuestionService.findOneU(id);
-  }
+  // @ApiTags('user')
+  // @Get('user/:id')
+  // findOneU(@Param('id') id: string) {
+  //   return this.subQuestionService.findOneU(id);
+  // }
 
   @Get('instructor/:id')
   @ApiParam({

@@ -14,13 +14,13 @@ import { PassportModule } from '@nestjs/passport';
 import { iLocalStrategy, sLocalStrategy } from './auth/strategies/local-strategy';
 import { InstructorJWTStrategy, StudentJWTStrategy } from './auth/strategies/jwt.strategy';
 import { SupabaseProvider } from './providers/supabase.provider';
-import { TestService } from './test/test.service';
 import { UploadService } from './upload/upload.service';
 import { TestModule } from './test/test.module';
 import { QuestionModule } from './question/question.module';
 import { SubQuestionModule } from './sub-question/sub-question.module';
 import { SubmissionModule } from './submission/submission.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
+import { GoogleStrategy } from './auth/strategies/google-oauth.strategy';
 
 @Module({
   imports: [
@@ -59,7 +59,7 @@ import { EvaluationModule } from './evaluation/evaluation.module';
        return {
           secret: configService.get<string>('JWT_SECRET'),
             signOptions: {
-            expiresIn: '6d',
+            expiresIn: configService.get<string>('JWT_EXPIRY'),
         },
     }},
       inject: [ConfigService],
@@ -84,6 +84,7 @@ import { EvaluationModule } from './evaluation/evaluation.module';
     StudentJWTStrategy,
     InstructorJWTStrategy,
     UploadService,
+    GoogleStrategy
   ],
 })
 export class AppModule {

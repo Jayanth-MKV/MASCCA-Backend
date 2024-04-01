@@ -85,11 +85,17 @@ export class InstructorService {
   async getPassByEmail(email: string) {
     const existinginstructor = await this.instructorModel
       .findOne({ email })
-      .select('+password');
+      .select('+password').select("+type");
     if (!existinginstructor) {
       this.logger.error(`instructor #${email} not found`);
       return null;
     }
+    
+    if(existinginstructor.type !="CRED"){
+      this.logger.error(`instructor #${existinginstructor.type} login cannot login via cred`);
+      return null;
+    }
+
     return existinginstructor;
   }
 

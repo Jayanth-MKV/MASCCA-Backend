@@ -1,6 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+
+enum LoginType{
+  CRED,
+  GOOGLE
+}
 @Schema({ timestamps: true })
 export class Instructor {
   @Prop()
@@ -23,6 +28,9 @@ export class Instructor {
 
   @Prop({ select: false, required: true })
   password: string;
+
+  @Prop({default:"CRED",uppercase:true,enum:LoginType})
+  type:string;
 }
 
 export type InstructorDocument = Instructor & Document;

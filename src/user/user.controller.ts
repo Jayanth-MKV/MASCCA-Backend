@@ -11,6 +11,7 @@ import {
   UploadedFile,
   ParseFilePipe,
   FileTypeValidator,
+  BadGatewayException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,6 +22,7 @@ import { StudentAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UploadService } from 'src/upload/upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StorageObjectDto } from 'src/upload/dto/storage-object.dto';
+import { SubmissionService } from 'src/submission/submission.service';
 
 @Controller('user')
 @ApiTags('user')
@@ -30,16 +32,17 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly uploadService: UploadService,
+    private readonly submissionService: SubmissionService
   ) {}
 
 
 
-  @Get('/audio/:testid')
-  async getData(@Param('testid') testid:string): Promise<any> {
-    return this.uploadService.fetchDataFromSupabase(testid);
-  }
+  // @Get('/audio/:testid')
+  // async getData(@Param('testid') testid:string): Promise<any> {
+  //   return this.uploadService.fetchDataFromSupabase(testid);
+  // }
 
-  @Post('upload/:testid')
+  @Post('submit/audio/:testid/:index/:id')
   @ApiParam({
     name: 'testid',
     description: 'folder name - Test ID',
@@ -52,6 +55,8 @@ export class UserController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @Param('testid') folder: string,
+    @Param('index') index: string,
+    @Param('id') id: string,
     @Body() data: StorageObjectDto,
     @UploadedFile(
       new ParseFilePipe({
@@ -62,14 +67,32 @@ export class UserController {
     )
     file: Express.Multer.File,
   ) {
-    console.log(file);
+    console.log(index);
+    console.log(id);
     console.log(folder);
     const uploadedData = await this.uploadService.uploadFileToSupabase(
       file,
       folder,
+      index,
+      id
     );
-    return uploadedData;
+
+    if(!uploadedData || !uploadedData?.fullPath){
+ return new BadGatewayException("file not uploaded")
+    }
+
+    const sa = await this.submissionService.saveAudio({id:id,index,type:"AUDIO",audiofile:uploadedData?.fullPath,audiotext:data.text})
+    return sa;
   }
+
+  /*
+  Response body
+{
+  "path": "123-123-123-123/1711951742724_1322-1231-2312-312_OAF_back_happy.wav",
+  "id": "004b6e0e-5942-4b7c-a4ed-4345e764e73b",
+  "fullPath": "audio/123-123-123-123/1711951742724_1322-1231-2312-312_OAF_back_happy.wav"
+}
+*/
 
 
   @Post()

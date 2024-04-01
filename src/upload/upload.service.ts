@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseProvider } from 'src/providers/supabase.provider';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UploadService {
@@ -26,10 +26,12 @@ export class UploadService {
   async uploadFileToSupabase(
     file: Express.Multer.File,
     folder: string,
+    index:string,
+    id:string
   ): Promise<any> {
     const supabase = await this.uploadProvider.getClient();
     try {
-      const uniqueFilename = `${Date.now().toString()}_${uuidv4()}_${file.originalname}`;
+      const uniqueFilename = `${index}_${id}_${file.originalname}`;
       const folderPath = folder ? `${folder}/` : 'public'; // Handle folder structure if specified
 
       const { data, error } = await supabase.storage
