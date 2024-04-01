@@ -24,7 +24,7 @@ export class CreateInstructorDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  readonly Department: string;
+  readonly department: string;
 
   @ApiProperty()
   @IsString()
@@ -53,11 +53,18 @@ export class CreateInstructorDtoI {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  readonly Department: string;
+  readonly department: string;
 
   @ApiProperty()
   @IsString()
   @MinLength(6)
   @IsNotEmpty()
   readonly password: string;
+}
+
+export class EmailCheckDto{
+  @ApiProperty()
+  @IsEmail()
+  @IsNotEmpty()
+  readonly email: string;
 }

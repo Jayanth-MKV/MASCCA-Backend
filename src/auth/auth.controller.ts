@@ -36,17 +36,27 @@ export class AuthController {
     }
   }
 
+  @Post('check-email')
+  async checkiemail(@Body() email:{email:string}) {
+   
+    const e = await this.instructorService.getPassByEmail(email?.email);
+    // console.log(e)
+    if(!e){
+      return false;
+    }
+    return true;
+  }
 
 
   @Post('iregister')
-  Registeri(@Body() CreateInstructorDto: CreateInstructorDtoI) {
+  async Registeri(@Body() CreateInstructorDto: CreateInstructorDtoI) {
     CreateInstructorDto["type"] = "CRED";
-    return this.instructorService.registerInstructor(CreateInstructorDto as CreateInstructorDto);
+    return await this.instructorService.registerInstructor(CreateInstructorDto as CreateInstructorDto);
   }
 
   @Post('sregister')
-  Registers(@Body() RegisterUserDto: RegisterUserDto) {
-    return this.userService.registerUser(RegisterUserDto);
+  async Registers(@Body() RegisterUserDto: RegisterUserDto) {
+    return await this.userService.registerUser(RegisterUserDto);
   }
 
   @UseGuards(slocalAuthGuard)
@@ -58,12 +68,14 @@ export class AuthController {
 
   @UseGuards(ilocalAuthGuard)
   @Post('/ilogin')
-  async Ilogin(@Body() data: iLoginDto, @Request() req: any, @Res() res: Response) {
-   try{
-    const token = await this.authService.ilogin(req?.user);
-    res.redirect(`${FRONTEND_URL}/oauth?token=${token.access_token}&i_user=${JSON.stringify(token?.user)}`);
-  } catch (err) {
-    res.status(500).send({ success: false, message: err.message });
-  }
+  async Ilogin(@Body() data: iLoginDto, @Request() req: any
+  // , @Res() res: Response
+  ) {
+    const  token =  await this.authService.ilogin(req?.user);
+    // res.json(token);
+    console.log(":::::",token)
+    return token;
+    // res.redirect(`${FRONTEND_URL}/oauth?token=${token.access_token}&i_user=${JSON.stringify(token?.user)}`);
+
   }
 }

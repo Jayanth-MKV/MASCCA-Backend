@@ -38,12 +38,13 @@ export class InstructorService {
       createInstructor.password,
     );
 
-    await createInstructor.save();
+    const us = await createInstructor.save();
     return {
       message: 'Instructor created successfully',
       status: HttpStatus.CREATED,
-      data: {
-        id: createInstructor._id,
+      user: {
+        email: createInstructor.email,
+        id:us?._id
       },
     };
   }

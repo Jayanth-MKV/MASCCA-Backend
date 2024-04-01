@@ -15,7 +15,7 @@ export class Instructor {
   lastName?: string;
 
   @Prop({ required: true })
-  Department: string;
+  department: string;
 
   @Prop()
   gender: string;

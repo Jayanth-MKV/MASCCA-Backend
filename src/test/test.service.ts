@@ -28,6 +28,7 @@ export class TestService {
     const testSecret = await generateRandomToken();
     return await this.testModel.create({
       title: createTestDto.title,
+      keywords:createTestDto.keywords,
       createdBy: id,
       testSecret,
     });
@@ -54,7 +55,7 @@ export class TestService {
         createdBy: id,
         published: true,
       });
-      if (!testData || testData.length == 0) {
+      if (!testData ) {
         this.logger.error(`tests data not found!`);
         throw new NotFoundException('tests data not found!');
       }

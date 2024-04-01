@@ -26,18 +26,22 @@ export class AuthService {
     // check if Instructor exists
     const Instructor = await this.instructorService.findByEmail(user.email);
 
+    let id = Instructor._id;
     if (!Instructor) {
       const inst = await this.instructorService.registerInstructor({
         name:user.name,
         email:user.email,
-        Department:"NULL",
+        department:"NULL",
         password:"",
         type:"GOOGLE"
       });
+
+      id=inst?.user?.id;
     }
 
     const payload = {
       email: user.email,
+      id:id,
       name: user.name,
       role: 'INSTRUCTOR',
       profile:user?.picture
@@ -70,6 +74,7 @@ export class AuthService {
 
   async slogin(user: any) {
     const payload = {
+      id:user._id,
       roll: user.roll,
       email: user.email,
       role: 'STUDENT',
@@ -82,6 +87,7 @@ export class AuthService {
 
   async ilogin(user: any) {
     const payload = {
+      id:user._id,
       email: user.email,
       name:user.name,
       role: 'INSTRUCTOR',
