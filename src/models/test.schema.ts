@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, SchemaTypes } from 'mongoose';
-import { QuestionSchema, Question } from './question.schema';
 
 @Schema({ timestamps: true })
 export class Test {
@@ -13,18 +12,7 @@ export class Test {
   @Prop({default:"Do not use any external resources.\nComplete the test individually.\nDo not refresh the page during the test."})
   guidelines: string;
 
-  @Prop({default:```
-  By participating in this test, you agree to the following terms and conditions:
-
-1. The test is conducted solely for educational and assessment purposes.
-2. All questions and materials provided in the test are confidential and should not be shared with others.
-3. Any form of cheating or plagiarism is strictly prohibited.
-4. The test duration is limited, and once started, it cannot be paused or restarted.
-5. Participants must ensure a stable internet connection to avoid any disruptions during the test.
-6. The test results may be used for evaluation and feedback purposes.
-
-Thank you for your cooperation.
-  ```})
+  @Prop({default:"By participating in this test, you agree to the following terms and conditions:\n1. The test is conducted solely for educational and assessment purposes.\nAll questions and materials provided in the test are confidential and should not be shared with others.\n3. Any form of cheating or plagiarism is strictly prohibited.\n4. The test duration is limited, and once started, it cannot be paused or restarted.\n5. Participants must ensure a stable internet connection to avoid any disruptions during the test.\n6. The test results may be used for evaluation and feedback purposes.\nThank you for your cooperation.\n"})
   tandc: string;
 
   @Prop({ required: true })

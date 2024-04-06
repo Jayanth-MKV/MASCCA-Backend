@@ -21,6 +21,9 @@ import { SubQuestionModule } from './sub-question/sub-question.module';
 import { SubmissionModule } from './submission/submission.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
 import { GoogleStrategy } from './auth/strategies/google-oauth.strategy';
+import { BullModule } from '@nestjs/bull';
+import { AudioProcessor } from './app.processor';
+import { EvaluationService } from './evaluation/evaluation.service';
 
 @Module({
   imports: [
@@ -37,6 +40,23 @@ import { GoogleStrategy } from './auth/strategies/google-oauth.strategy';
           .required(),
       }),
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          username: configService.get<string>('REDIS_USER'),
+          password: configService.get<string>('REDIS_PASS'),
+          tls: {
+            host: configService.get<string>('REDIS_HOST'),
+            port: Number(configService.get<string>('REDIS_PORT')) || 6379,
+          },
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    BullModule.registerQueue({
+      name: 'audio',
+    }),
     ConditionalModule.registerWhen(
       MongooseModule.forRootAsync({
         imports: [ConfigModule],
@@ -52,16 +72,17 @@ import { GoogleStrategy } from './auth/strategies/google-oauth.strategy';
       imports: [ConfigModule],
       global: true,
       useFactory: async (configService: ConfigService) => {
-       
+
         console.log(
           'JWT Module Registered - ');
-       
-       return {
+
+        return {
           secret: configService.get<string>('JWT_SECRET'),
-            signOptions: {
+          signOptions: {
             expiresIn: configService.get<string>('JWT_EXPIRY'),
-        },
-    }},
+          },
+        }
+      },
       inject: [ConfigService],
     }),
     AuthModule,
@@ -75,6 +96,7 @@ import { GoogleStrategy } from './auth/strategies/google-oauth.strategy';
   ],
   controllers: [AppController],
   providers: [
+    AudioProcessor,
     SupabaseProvider,
     AppService,
     HashService,
@@ -84,7 +106,8 @@ import { GoogleStrategy } from './auth/strategies/google-oauth.strategy';
     StudentJWTStrategy,
     InstructorJWTStrategy,
     UploadService,
-    GoogleStrategy
+    GoogleStrategy,
+    EvaluationService
   ],
 })
 export class AppModule {

@@ -8,6 +8,9 @@ import { Question, QuestionSchema } from 'src/models/question.schema';
 import { SubQuestion, SubQuestionSchema } from 'src/models/subquestion.schema';
 import { QuestionService } from 'src/question/question.service';
 import { SubQuestionService } from 'src/sub-question/sub-question.service';
+import { EvaluationService } from 'src/evaluation/evaluation.service';
+import { TestEvaluation, TestEvaluationSchema } from 'src/models/testevaluation.schema';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports:[
@@ -15,9 +18,13 @@ import { SubQuestionService } from 'src/sub-question/sub-question.service';
     MongooseModule.forFeature([{name:Test.name,schema:TestSchema}]),
     MongooseModule.forFeature([{name:Question.name,schema:QuestionSchema}]),
     MongooseModule.forFeature([{name:SubQuestion.name,schema:SubQuestionSchema}]),
+    MongooseModule.forFeature([{name:TestEvaluation.name,schema:TestEvaluationSchema}]),
+    BullModule.registerQueue({
+      name: 'audio',
+    }),
   ],
   controllers: [SubmissionController],
-  providers: [SubmissionService,QuestionService,SubQuestionService],
+  providers: [SubmissionService,QuestionService,SubQuestionService,EvaluationService],
   exports:[MongooseModule,SubmissionService]
 })
 export class SubmissionModule {}

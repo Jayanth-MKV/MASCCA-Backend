@@ -13,7 +13,7 @@ import { SupabaseProvider } from 'src/providers/supabase.provider';
   ],
   controllers: [InstructorController],
   providers: [InstructorService, HashService,UploadService,SupabaseProvider],
-  exports:[InstructorService]
+  exports:[InstructorService,MongooseModule]
 })
 export class InstructorModule {
   onModuleInit() {

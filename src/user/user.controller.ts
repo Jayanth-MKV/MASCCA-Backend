@@ -23,6 +23,7 @@ import { UploadService } from 'src/upload/upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StorageObjectDto } from 'src/upload/dto/storage-object.dto';
 import { SubmissionService } from 'src/submission/submission.service';
+import { getAudioDto } from './dto/getAudio.Dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -67,9 +68,9 @@ export class UserController {
     )
     file: Express.Multer.File,
   ) {
-    console.log(index);
-    console.log(id);
-    console.log(folder);
+    // console.log(index);
+    // console.log(id);
+    // console.log(folder);
     const uploadedData = await this.uploadService.uploadFileToSupabase(
       file,
       folder,
@@ -93,6 +94,12 @@ export class UserController {
   "fullPath": "audio/123-123-123-123/1711951742724_1322-1231-2312-312_OAF_back_happy.wav"
 }
 */
+
+
+@Post('/getaudiofile')
+getAudio(@Body() getaudDto: getAudioDto) {
+  return this.uploadService.downloadFileFromSupabase(getaudDto.filePath);
+}
 
 
   @Post()

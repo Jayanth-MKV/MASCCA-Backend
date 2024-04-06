@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class SaveTextSubmissionDto {
     @IsString()
@@ -8,19 +8,28 @@ export class SaveTextSubmissionDto {
 
     @IsString()
     @ApiProperty()
+    @IsOptional()
     answer: string;
 
     @IsString()
     @ApiProperty()
+    @IsOptional()
     index: string;
 
     @IsString()
     @ApiProperty()
+    @IsOptional()
     type: string;
 
     @IsString()
     @ApiProperty()
+    @IsOptional()
     time: string;
+
+    @IsString()
+    @ApiProperty()
+    @IsOptional()
+    emotion: string;
 }
 
 export class SaveAudioSubmissionDto {
@@ -30,17 +39,21 @@ export class SaveAudioSubmissionDto {
     
     @IsString()
     @ApiProperty()
+    @IsOptional()
     audiofile:string;
 
     @IsString()
     @ApiProperty()
+    @IsOptional()
     audiotext:string;
 
     @IsString()
     @ApiProperty()
+    @IsOptional()
     index: string;
 
     @IsString()
     @ApiProperty()
+    @IsOptional()
     type: string;
 }

@@ -52,7 +52,7 @@ export class InstructorAuthGuard extends AuthGuard('instructor') {
       );
     }
 
-    console.log(user);
+    // console.log(user);
     return user;
   }
 }

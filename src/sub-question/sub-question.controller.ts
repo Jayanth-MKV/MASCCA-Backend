@@ -4,7 +4,7 @@ import { UpdateSubQuestionDto } from './dto/update-sub-question.dto';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { InstructorAuthGuard } from 'src/auth/guards/jwt.guard';
 
-@Controller('sub-question')
+@Controller('subquestion')
 @ApiTags('instructor')
 @ApiBearerAuth()
 @UseGuards(InstructorAuthGuard)

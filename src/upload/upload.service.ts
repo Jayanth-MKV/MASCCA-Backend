@@ -23,6 +23,42 @@ export class UploadService {
     return data;
   }
 
+  async downloadFileFromSupabase(filePath: string): Promise<Blob | null> {
+    const supabase = await this.uploadProvider.getClient();
+  
+    console.log(filePath);
+    // Download the file from Supabase
+    const { data, error } = await supabase.storage.from('audio').download(filePath);
+  
+    console.log(data);
+
+    
+    if (error) {
+      console.error('Failed to download file from Supabase:', error);
+      return null;
+    }
+
+    return data;
+    
+    // Convert Blob to Buffer
+    // const reader = new FileReader();
+    // const bufferPromise = new Promise<Buffer>((resolve, reject) => {
+    //   reader.onload = () => {
+    //     const buffer = Buffer.from(reader.result as ArrayBuffer);
+    //     resolve(buffer);
+    //   };
+    //   reader.onerror = (error) => {
+    //     console.error('Error reading file as ArrayBuffer:', error);
+    //     reject(error);
+    //   };
+    // });
+    
+    // reader.readAsArrayBuffer(data);
+  
+    // return bufferPromise;
+  }
+  
+
   async uploadFileToSupabase(
     file: Express.Multer.File,
     folder: string,
@@ -37,6 +73,7 @@ export class UploadService {
       const { data, error } = await supabase.storage
         .from('audio')
         .upload(`${folderPath}/${uniqueFilename}`, file.buffer, {
+          contentType:file.mimetype,
           upsert: true,
         });
       if (error) {

@@ -12,23 +12,38 @@ export class EvaluationController {
     return this.evaluationService.create(createEvaluationDto);
   }
 
-  @Get()
-  findAll() {
-    return this.evaluationService.findAll();
+  
+  @Get('getbysubid/:id')
+  async findOnebysubId(@Param('id') id: string) {
+    return await this.evaluationService.findOneSubId(id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.evaluationService.findOne(+id);
+  async findOneId(@Param('id') id: string) {
+    return await this.evaluationService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEvaluationDto: UpdateEvaluationDto) {
-    return this.evaluationService.update(+id, updateEvaluationDto);
+
+  @Get('test/:id')
+  async findOnetId(@Param('id') id: string) {
+    return await this.evaluationService.findAll(id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.evaluationService.remove(+id);
+  @Get('submission/:id/results')
+  async getResults(@Param('id') id: string) {
+    return await this.evaluationService.getResults(id);
   }
+
+  @Get('submission/:id/results/reload')
+  async getResultsReload(@Param('id') id: string) {
+    return await this.evaluationService.getResults(id,true);
+  }
+
+
+  
+  @Get('test/:id')
+  async findAllIns(@Param('id') id: string) {
+    return await this.evaluationService.findAll(id);
+  }
+
 }

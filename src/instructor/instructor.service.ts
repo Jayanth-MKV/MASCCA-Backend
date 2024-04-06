@@ -1,10 +1,11 @@
-import { BadRequestException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateInstructorDto } from './dto/create-instructor.dto';
 import { UpdateInstructorDto } from './dto/update-instructor.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Instructor, InstructorDocument } from 'src/models/instructor.schema';
 import { HashService } from 'src/hash/hash.service';
 import { Model } from 'mongoose';
+import { MailDto, MultiMailDto } from './dto/mail.dto';
 
 @Injectable()
 export class InstructorService {
@@ -17,8 +18,55 @@ export class InstructorService {
     this.logger = new Logger(InstructorService.name);
   }
 
-  async registerInstructor(CreateCreateInstructorDto: CreateInstructorDto) {
 
+  async sendInviteEmail(data: MailDto) {
+    let headersList = {
+      "Accept": "*/*",
+      "Content-Type": "application/json"
+     }
+     try{
+
+       const resp = await fetch(`${process.env.EMAIL_SERVICE_ENDPOINT}/send-email`,{
+         method:"POST",
+         body:JSON.stringify(data),
+         headers:headersList
+        });
+        
+        const job = await resp.json();
+        
+        return job;
+      }
+      catch(e){
+        throw new BadGatewayException("email server is down");
+      }
+  }
+
+  async sendMultipleInviteEmails(data: MultiMailDto[]) {
+    let headersList = {
+      "Accept": "*/*",
+      "Content-Type": "application/json"
+     }
+try{
+
+  const resp = await fetch(`${process.env.EMAIL_SERVICE_ENDPOINT}/send-multiple-emails`,{
+    method:"POST",
+    body:JSON.stringify(data),
+    headers: headersList
+  });
+  const job = await resp.json();
+  
+  return job;
+}
+catch(e){
+  throw new BadGatewayException("email server is down");
+}
+  }
+
+
+
+
+
+  async registerInstructor(CreateCreateInstructorDto: CreateInstructorDto) {
 
     // check if Instructor exists
     const Instructor = await this.findByEmail(CreateCreateInstructorDto.email);

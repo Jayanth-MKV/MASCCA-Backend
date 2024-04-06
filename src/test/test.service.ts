@@ -1,6 +1,7 @@
+import { InstructorService } from 'src/instructor/instructor.service';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateTestDto } from './dto/create-test.dto';
-import { UpdateTestDto } from './dto/update-test.dto';
+import { updatePubDto, UpdateTestDto } from './dto/update-test.dto';
 import { Test, TestDocument } from 'src/models/test.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,6 +14,7 @@ export class TestService {
 
   constructor(
     @InjectModel(Test.name) private readonly testModel: Model<TestDocument>,
+    private readonly instructorService:InstructorService,
   ) {
     this.logger = new Logger(TestService.name);
   }
@@ -74,8 +76,11 @@ export class TestService {
 
       throw new NotFoundException(`test #${id} not found`);
     }
+    const user = await this.instructorService.findOne(existingtest.createdBy);
 
     const testR = await objectParser(existingtest,allFields);
+
+    testR["createdBy"] = user.name;
 
     return testR;
   }
@@ -105,7 +110,22 @@ export class TestService {
     const existingtest = await this.testModel.findByIdAndUpdate(
       id,
       updateTestDto,
-      { new: true },
+      // { new: true },
+    );
+    if (!existingtest) {
+      this.logger.error(`test #${id} not found`);
+
+      throw new NotFoundException(`test #${id} not found`);
+    }
+    return existingtest;
+  }
+
+  async publishTest(id: string, updatePubDto: updatePubDto) {
+    console.log({id,...updatePubDto})
+    const existingtest = await this.testModel.findByIdAndUpdate(
+      id,
+      updatePubDto,
+      // { new: true },
     );
     if (!existingtest) {
       this.logger.error(`test #${id} not found`);
