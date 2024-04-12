@@ -57,3 +57,25 @@ export class SaveAudioSubmissionDto {
     @IsOptional()
     type: string;
 }
+
+
+export class SaveAudioTranscriptSubmissionDto {
+    @IsString()
+    @ApiProperty()
+    id: string;
+    
+    @IsString()
+    @ApiProperty()
+    @IsOptional()
+    audiotext:string;
+
+    @IsString()
+    @ApiProperty()
+    @IsOptional()
+    index: string;
+
+    @IsString()
+    @ApiProperty()
+    @IsOptional()
+    type: string;
+}

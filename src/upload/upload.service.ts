@@ -67,13 +67,13 @@ export class UploadService {
   ): Promise<any> {
     const supabase = await this.uploadProvider.getClient();
     try {
-      const uniqueFilename = `${index}_${id}_${file.originalname}`;
+      const uniqueFilename = `${index}_${id}_${file?.originalname}`;
       const folderPath = folder ? `${folder}/` : 'public'; // Handle folder structure if specified
 
       const { data, error } = await supabase.storage
         .from('audio')
-        .upload(`${folderPath}/${uniqueFilename}`, file.buffer, {
-          contentType:file.mimetype,
+        .upload(`${folderPath}/${uniqueFilename}`, file?.buffer, {
+          contentType:file?.mimetype,
           upsert: true,
         });
       if (error) {

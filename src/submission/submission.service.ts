@@ -16,7 +16,7 @@ import {
 } from 'src/models/subquestion.schema';
 import { SubQuestionService } from 'src/sub-question/sub-question.service';
 import { QuestionService } from 'src/question/question.service';
-import { SaveAudioSubmissionDto, SaveTextSubmissionDto } from './dto/save-text-submission.dto';
+import { SaveAudioSubmissionDto, SaveAudioTranscriptSubmissionDto, SaveTextSubmissionDto } from './dto/save-text-submission.dto';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 
@@ -146,10 +146,44 @@ export class SubmissionService {
       answers: sbarray
     }, { new: true });
 
-    const job = await this.audioQueue.add('audio-emotion', { id, audiofileurl: audiofile, index });
+    const job = await this.audioQueue.add('audio-emotion', { id, audiofileurl: audiofile, index },{
+      attempts: 2, // If job fails it will retry till 5 times
+      backoff: 5000 // static 5 sec delay between retry
+   });
     return p;
   }
 
+
+
+  async saveAudioTrans({ id, index, type, audiotext }: SaveAudioTranscriptSubmissionDto) {
+    const qs = await this.submissionModel.findById(id);
+    if (!qs) {
+      return new NotFoundException("Submission Not Found");
+    }
+    const sbarray = qs?.answers;
+    if (Number(index) >= sbarray.length) {
+      return new BadRequestException("ques index exceeded - " + index);
+    }
+    const obj = sbarray[Number(index)];
+    const tps = obj["subQ"]?.map(et => {
+      if (et.type == type) {
+        const e = et;
+        e["audiototext"] = audiotext;
+        return e;
+      }
+      return et;
+    }) as any;
+    obj["subQ"] = tps;
+    sbarray[Number(index)] = obj;
+
+    console.log("sbarray: ", sbarray);
+
+    const p = await this.submissionModel.findOneAndUpdate(qs._id, {
+      answers: sbarray
+    }, { new: true });
+
+    return {"message":"success",data:p._id}
+  }
 
   async submitTest(id: String) {
     const qs = await this.submissionModel.findByIdAndUpdate(id, {

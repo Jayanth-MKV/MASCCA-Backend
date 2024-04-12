@@ -12,6 +12,7 @@ import {
   ParseFilePipe,
   FileTypeValidator,
   BadGatewayException,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -36,6 +37,18 @@ export class UserController {
     private readonly submissionService: SubmissionService
   ) {}
 
+
+
+  @Post('submit/audio/transcript/:index/:id')
+async uploadTrans(
+  @Param('index') index: string,
+  @Param('id') id: string,
+  @Body('text') text: string,
+){
+  const ts = await  this.submissionService.saveAudioTrans({id,type:"AUDIO",index,audiotext:text})
+  console.log(ts)
+  return ts;
+}
 
 
   // @Get('/audio/:testid')
@@ -64,6 +77,7 @@ export class UserController {
         validators: [
           new FileTypeValidator({ fileType: /\**.(wav|mp3|aiff|ogg)$/ }),
         ],
+        fileIsRequired: false,
       })
     )
     file: Express.Multer.File,
@@ -71,12 +85,22 @@ export class UserController {
     // console.log(index);
     // console.log(id);
     // console.log(folder);
+
+    if(!file){
+      return new BadGatewayException("file not provided")
+         }
+
     const uploadedData = await this.uploadService.uploadFileToSupabase(
       file,
       folder,
       index,
       id
     );
+
+    console.log(data)
+    // console.log(req.body)
+    // console.log(req.file)
+    // console.log(req)
 
     if(!uploadedData || !uploadedData?.fullPath){
  return new BadGatewayException("file not uploaded")
@@ -94,6 +118,10 @@ export class UserController {
   "fullPath": "audio/123-123-123-123/1711951742724_1322-1231-2312-312_OAF_back_happy.wav"
 }
 */
+
+
+
+
 
 
 @Post('/getaudiofile')

@@ -59,7 +59,7 @@ export class AudioProcessor {
       });
 
       const apiResult = await axios.post(process.env.SER_ENDPOINT,formData
-    );
+);
 
       // console.log(apiResult);
       // Update emotion using evaluation service
@@ -68,9 +68,13 @@ export class AudioProcessor {
       } as UpdateEvaluationDto;
 
       const p = await this.evaluationService.updateBySubId(id, index, updateEvaluationDto);
-      console.log("Evaluation Of Audio Updated",p)
+      console.log("Evaluation Of Audio Updated"
+      // ,p
+    )
     } catch (error) {
+      // job.retry();
       console.error('Failed to predict audio emotion or update evaluation:', error);
+      throw error;
     }
 
 
@@ -91,7 +95,9 @@ export class AudioProcessor {
       } as UpdateEvaluationDto;
 
       const p = await this.evaluationService.updateBySubId(id, index, updateEvaluationDto);
-      console.log("Evaluation Of Audio Updated",p)
+      console.log("Evaluation Of Audio Updated"
+      // ,p
+    )
     } catch (error) {
       console.error('Failed to predict audio emotion or update evaluation:', error);
     }
