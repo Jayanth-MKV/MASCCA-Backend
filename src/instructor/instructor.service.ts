@@ -6,6 +6,7 @@ import { Instructor, InstructorDocument } from 'src/models/instructor.schema';
 import { HashService } from 'src/hash/hash.service';
 import { Model } from 'mongoose';
 import { MailDto, MultiMailDto } from './dto/mail.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class InstructorService {
@@ -14,6 +15,7 @@ export class InstructorService {
     @InjectModel(Instructor.name)
     private instructorModel: Model<InstructorDocument>,
     private hashService: HashService,
+    private readonly userService: UserService,
   ) {
     this.logger = new Logger(InstructorService.name);
   }
@@ -70,6 +72,13 @@ catch(e){
 
     // check if Instructor exists
     const Instructor = await this.findByEmail(CreateCreateInstructorDto.email);
+    const user = await this.userService.findByEmail(CreateCreateInstructorDto.email);
+
+    if (user) {
+      throw new BadRequestException(
+        `User with #${CreateCreateInstructorDto.email} already found`,
+      );
+    }
 
     if (Instructor) {
       throw new BadRequestException(

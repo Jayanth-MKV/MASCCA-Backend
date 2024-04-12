@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -34,8 +35,8 @@ export class CreateInstructorDto {
  
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
-  readonly type: string;
+  @IsOptional()
+  type: string;
 }
 
 export class CreateInstructorDtoI {

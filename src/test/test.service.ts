@@ -23,8 +23,30 @@ export class TestService {
 
   async createInviteLink(testId: string) {
     const test = await this.testModel.findById(testId);
-    return `/test/${test._id}/${test.title}/${test.testSecret}/`;
+    return `/test-redirect/${test._id}/${test.title}/${test.testSecret}/`;
   }
+
+
+  async getByIdAndSecret(id: string,testSecret:string) {
+    const allFields = await getTestFields(this.testModel);
+    const existingtest = await this.testModel.findOne({_id:id,testSecret});
+    if (!existingtest) {
+      this.logger.error(`test #${id} not found`);
+
+      throw new NotFoundException(`test #${id} not found`);
+    }
+    const user = await this.instructorService.findOne(existingtest.createdBy);
+
+    const testR = await objectParser(existingtest,allFields);
+
+    testR["createdBy"] = user.name;
+
+    return testR;
+
+  }
+
+
+
 
   async create(createTestDto: CreateTestDto, id: string) {
     const testSecret = await generateRandomToken();
@@ -50,6 +72,25 @@ export class TestService {
       throw new NotFoundException('tests data not found!');
     }
   }
+
+
+  
+  async findAllAvailable() {
+    try {
+      const testData = await this.testModel.find({
+        published: true,
+      }).select(["title","_id"]);
+      console.log(testData)
+      if (!testData || testData.length == 0) {
+        this.logger.error(`tests not found!`);
+        throw new NotFoundException('tests not found!');
+      }
+      return testData;
+    } catch (e) {
+      throw new NotFoundException('tests not found!');
+    }
+  }
+
 
   async findAllOng(id: string) {
     try {

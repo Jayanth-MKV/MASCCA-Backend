@@ -1,3 +1,4 @@
+import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import {
   BadRequestException,
   HttpStatus,
@@ -11,7 +12,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from 'src/models/user.schema';
 import { Model } from 'mongoose';
 import { HashService } from 'src/hash/hash.service';
-import { RegisterUserDto } from './dto/register-user.dto';
+import { Instructor, InstructorDocument } from 'src/models/instructor.schema';
 
 @Injectable()
 export class UserService {
@@ -19,7 +20,9 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private hashService: HashService,
-  ) {
+
+    @InjectModel(Instructor.name)
+    private instructorModel: Model<InstructorDocument>,  ) {
     this.logger = new Logger(UserService.name);
   }
 
@@ -40,6 +43,13 @@ export class UserService {
     if (user) {
       throw new BadRequestException(
         `user with #${RegisterUserDto.email} already found`,
+      );
+    }
+    
+    const existinginst = await this.instructorModel.findOne({email:RegisterUserDto.email});
+    if (existinginst) {
+      throw new BadRequestException(
+        `Instructor with #${RegisterUserDto.email} already found`,
       );
     }
 
@@ -92,6 +102,7 @@ export class UserService {
       this.logger.error(`user #${email} not found`);
       return null;
     }
+
     return existinguser;
   }
 

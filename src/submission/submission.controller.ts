@@ -40,14 +40,14 @@ export class SubmissionController {
     return await this.submissionService.submitTest(id);
   }
 
-  @Get(':userId')
+  @Get('user/:userId')
   async findAll(@Param('userId') id:string) {
     return await this.submissionService.findAll(id);
   }
 
 
   @Get('all/:testId')
-  async findAllT(@Param('userId') id:string) {
+  async findAllT(@Param('testId') id:string) {
     return await this.submissionService.findAll(id);
   }
 

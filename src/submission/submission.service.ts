@@ -27,7 +27,7 @@ export class SubmissionService {
   constructor(
     @InjectModel(UserSubmission.name)
     private readonly submissionModel: Model<UserSubmissionDocument>,
-    // @InjectModel(Test.name) private readonly testModel: Model<TestDocument>,
+    @InjectModel(Test.name) private readonly testModel: Model<TestDocument>,
     // private readonly subQuestionService: SubQuestionService,
     // private readonly questionService: QuestionService,
     @InjectModel(Question.name)
@@ -205,7 +205,7 @@ export class SubmissionService {
 
 
   async findOne(id: string) {
-    return this.submissionModel.findById(id);
+    return await this.submissionModel.findById(id);
   }
 
   async update(id: string, updateSubmissionDto: UpdateSubmissionDto) {

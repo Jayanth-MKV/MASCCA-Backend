@@ -8,7 +8,7 @@ import { InstructorService } from 'src/instructor/instructor.service';
 import { UserService } from 'src/user/user.service';
 import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
-import { FRONTEND_URL } from 'src/utils/constants';
+import { FRONTEND_URL, FRONTEND_URLS } from 'src/utils/constants';
 import { Response } from 'express';
 
 @Controller('auth')
@@ -23,6 +23,16 @@ export class AuthController {
 
 
 
+  @Get('callback/google/user')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthCallbackS(@Req() req, @Res() res: Response) {
+    try {
+      const token = await this.authService.oAuthLoginS(req.user);
+      res.redirect(`${FRONTEND_URLS}/oauth?token=${token.access_token}&s_user=${JSON.stringify(token?.user)}`);
+    } catch (err) {
+      res.status(500).send({ success: false, message: err.message });
+    }
+  }
 
 
   @Get('callback/google')
@@ -30,20 +40,39 @@ export class AuthController {
   async googleAuthCallback(@Req() req, @Res() res: Response) {
     try {
       const token = await this.authService.oAuthLogin(req.user);
+      if(token?.user?.role=="STUDENT"){
+        res.redirect(`${FRONTEND_URLS}/oauth?token=${token.access_token}&s_user=${JSON.stringify(token?.user)}`);
+        return ;
+      }
       res.redirect(`${FRONTEND_URL}/oauth?token=${token.access_token}&i_user=${JSON.stringify(token?.user)}`);
     } catch (err) {
       res.status(500).send({ success: false, message: err.message });
     }
   }
 
+
   @Post('check-email')
   async checkiemail(@Body() email:{email:string}) {
    
     const e = await this.instructorService.getPassByEmail(email?.email);
+    const u = await this.userService.getPassByEmail(email?.email);
+    // console.log(e)
+    if(!e && !u){
+      return false;
+    }
+    
+    return true;
+  }
+
+  @Post('check-roll')
+  async checkRoll(@Body() roll:{roll:string}) {
+   
+    const e = await this.userService.getPassByRoll(roll?.roll);
     // console.log(e)
     if(!e){
       return false;
     }
+    
     return true;
   }
 
@@ -56,6 +85,7 @@ export class AuthController {
 
   @Post('sregister')
   async Registers(@Body() RegisterUserDto: RegisterUserDto) {
+    RegisterUserDto["type"] = "CRED";
     return await this.userService.registerUser(RegisterUserDto);
   }
 

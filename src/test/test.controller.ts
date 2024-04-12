@@ -21,40 +21,55 @@ import { InstructorAuthGuard, StudentAuthGuard } from 'src/auth/guards/jwt.guard
 @ApiTags('instructor')
 @ApiBearerAuth()
 export class TestController {
-  constructor(private readonly testService: TestService) {}
+  constructor(private readonly testService: TestService) { }
 
   // ----------------------------------------test---------------------------------------
- 
- 
+
+
   @Post('create')
   @UseGuards(InstructorAuthGuard)
-  create(@Body() createTestDto: CreateTestDto, @Req() req: any) {
+  async create(@Body() createTestDto: CreateTestDto, @Req() req: any) {
     const id = req?.user?.id;
     console.log(id)
-    return this.testService.create(createTestDto, id);
+    return await this.testService.create(createTestDto, id);
   }
 
   @Get('invitelink/:testid')
   @UseGuards(InstructorAuthGuard)
-  getInviteLink(@Param('testid') id:string) {
+  async getInviteLink(@Param('testid') id: string) {
 
-    return this.testService.createInviteLink(id);
+    return await this.testService.createInviteLink(id);
+  }
+
+  @Post('taketest')
+  @ApiTags('user')
+  @UseGuards(StudentAuthGuard)
+  async getByIdAndSecret(@Body() getTestDto: any) {
+    console.log("take test")
+    console.log(getTestDto)
+    return await this.testService.getByIdAndSecret(getTestDto.id, getTestDto.testSecret);
   }
 
   @Get('instructor/mytests')
   @UseGuards(InstructorAuthGuard)
-  findAll(@Req() req: Request) {
+  async findAll(@Req() req: Request) {
     const user = (req as any)?.user;
 
-    return this.testService.findAll(user?.id);
+    return await this.testService.findAll(user?.id);
+  }
+
+  @Get('all')
+  @UseGuards(StudentAuthGuard)
+  async findAllAv() {
+    return await this.testService.findAllAvailable();
   }
 
   @Get('instructor/mytests/ongoing')
   @UseGuards(InstructorAuthGuard)
-  findAllOngoing(@Req() req: Request) {
+  async findAllOngoing(@Req() req: Request) {
     const user = (req as any)?.user;
 
-    return this.testService.findAllOng(user?.id);
+    return await this.testService.findAllOng(user?.id);
   }
   // @Get(':instId')
   // findAll(@Param('instId') instId:string ) {
@@ -64,8 +79,8 @@ export class TestController {
   @ApiTags('user')
   @Get('user/:testid')
   @UseGuards(StudentAuthGuard)
-  findOneU(@Param('testid') id: string) {
-    return this.testService.findOneU(id);
+  async findOneU(@Param('testid') id: string) {
+    return await this.testService.findOneU(id);
   }
 
   @Get('instructor/:id')
@@ -100,10 +115,10 @@ export class TestController {
 
 
   // ----------------------------------------sub-question---------------------------------------
-  
-  
+
+
   // ----------------------------------------user-submission---------------------------------------
-  
-  
+
+
   // ----------------------------------------test-evaluation---------------------------------------
 }
