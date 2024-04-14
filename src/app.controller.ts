@@ -7,7 +7,7 @@ export class AppController {
 
   @Get()
   async hello() {
-    return "Hello"
+    return "Hello World"
   }
 
 }
