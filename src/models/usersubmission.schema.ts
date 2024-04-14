@@ -30,6 +30,7 @@ export class UserSubmission {
             sqid: { type: SchemaTypes.ObjectId, ref: 'SubQuestion' },
             type: String,
             answer: String,
+            emotion:String,
             audiofileurl: String,
             audiototext: String,
             timeTaken: String,
@@ -48,7 +49,8 @@ export class UserSubmission {
     subQ:[{
       sqid: string;
       type: 'TEXT' | 'AUDIO';
-      answer: string;
+      answer?: string;
+      emotion?:string,
       audiofileurl?: string;
       audiototext?: string;
       timeTaken?: string;

@@ -34,25 +34,46 @@ export class EvaluationService {
 
 
 
+  async EvalTextemotion(id:string,index :string) {
+
+     const subq = await this.submissionService.findbyindex(id,index,"TEXT");
+    let  emotion:string, time:string ;
+    if(subq){
+    emotion = subq?.emotion || "neutral";
+    time = subq?.timeTaken;
+    }
+
+    try {
+      // Update emotion using evaluation service
+      const updateEvaluationDto = {
+        videoEmotion: emotion,
+        time
+      } as UpdateEvaluationDto;
+
+      const p = await this.updateBySubId(id, Number(index), updateEvaluationDto);
+      console.log("Evaluation Of Audio Updated"
+      // ,p
+    )
+    return p;
+    } catch (error) {
+      console.error('Failed to predict audio emotion or update evaluation:', error);
+    }
 
 
-  async getAudioEmotion(id: string, audiofileurl: string, index: number) {
+  }
+
+
+
+  async getAudioEmotion(id: string, index: string) {
+
+    const subq = await this.submissionService.findbyindex(id,index,"AUDIO");
+    let audiofileurl: string ;
+    if(subq){
+    audiofileurl = subq?.audiofileurl;
+    }
+    
 
     const data = await this.uploadService.downloadFileFromSupabase(audiofileurl.slice(6));
-
-    // get file from supabase  - returns blob.
-
-    // this data send to api ("curl -X 'POST' \
-    // 'https://ser-api.onrender.com/predict_audio' \
-    // -H 'accept: application/json' \
-    // -H 'Content-Type: multipart/form-data' \") and get emotion 
-
-    // then update the emotion using evaluation servuce -   async updateBySubId(id: string,index:number, updateEvaluationDto: UpdateEvaluationDto) {
-    // where updatedto will be {audioEmotion: api result : {
-    //   "emotion": "happy"
-    // }
-
-
     try {
 
       const formData = new FormData();
@@ -69,7 +90,7 @@ export class EvaluationService {
         audioEmotion: apiResult?.data?.emotion
       } as UpdateEvaluationDto;
 
-      const p = await this.updateBySubId(id, index, updateEvaluationDto);
+      const p = await this.updateBySubId(id, Number(index), updateEvaluationDto);
       console.log("Evaluation Of Audio Updated")
       return p;
         // ,p
@@ -79,7 +100,6 @@ export class EvaluationService {
       console.error('Failed to predict audio emotion or update evaluation:', error);
       throw error;
     }
-
 
   }
 
@@ -201,7 +221,7 @@ export class EvaluationService {
 
   }
 
-  // subid
+  // subid - use algo on submitted results
   async getResults(id: string, reload: boolean = false) {
 
     const submission = await this.findOneSubId(id);

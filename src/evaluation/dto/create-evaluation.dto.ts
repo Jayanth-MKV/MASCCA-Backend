@@ -59,3 +59,23 @@ export class SaveAudioEvaluationDto {
     @ApiProperty()
     type: string;
 }
+
+
+export class AudioReEvaluationDto {
+    @IsString()
+    @ApiProperty()
+    id: string;
+
+    @IsString()
+    @ApiProperty()
+    index: string;
+}
+export class TextReEvaluationDto {
+    @IsString()
+    @ApiProperty()
+    id: string;
+
+    @IsString()
+    @ApiProperty()
+    index: string;
+}

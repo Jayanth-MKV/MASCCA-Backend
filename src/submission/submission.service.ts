@@ -67,6 +67,7 @@ export class SubmissionService {
             type: s['type'],
             answer: '',
             audiofileurl: '',
+            emotion: '',
             audiototext: '',
             timeTaken: '',
             title: s['title'],
@@ -100,6 +101,7 @@ export class SubmissionService {
         const e = et;
         e["answer"] = answer;
         e["timeTaken"] = time;
+        e["emotion"] = emotion;
         return e;
       }
       return et;
@@ -146,10 +148,10 @@ export class SubmissionService {
       answers: sbarray
     }, { new: true });
 
-    const job = await this.audioQueue.add('audio-emotion', { id, audiofileurl: audiofile, index },{
-      attempts: 2, // If job fails it will retry till 5 times
-      backoff: 5000 // static 5 sec delay between retry
-   });
+  //   const job = await this.audioQueue.add('audio-emotion', { id, audiofileurl: audiofile, index },{
+  //     attempts: 2, // If job fails it will retry till 5 times
+  //     backoff: 5000 // static 5 sec delay between retry
+  //  });
     return p;
   }
 
@@ -185,6 +187,21 @@ export class SubmissionService {
     return {"message":"success",data:p._id}
   }
 
+
+
+async findbyindex(id:string,index:string,type:string) {
+  const qs = await this.submissionModel.findById(id);
+  const sbarray = qs?.answers;
+  const obj = sbarray[Number(index)];
+  const tps = obj["subQ"];
+  const subq = tps.filter((item)=>item.type==type);
+  return subq[0];
+}
+
+
+
+
+
   async submitTest(id: String) {
     const qs = await this.submissionModel.findByIdAndUpdate(id, {
       submitted: true
@@ -205,8 +222,8 @@ export class SubmissionService {
     const sq = await this.subquestionModel.findOne({
       _id:id, testId
     });
-    // console.log(sq);
-    // console.log({id,testId});
+    console.log(sq);
+    console.log({id,testId,answer});
     
     if(!sq){
       return false; 
@@ -221,6 +238,7 @@ export class SubmissionService {
   async evalAudioSQ(id: string, testId: string, answer: string) {
 
   }
+
 
 
 

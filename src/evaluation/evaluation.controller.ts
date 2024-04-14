@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { EvaluationService } from './evaluation.service';
-import { CreateEvaluationDto } from './dto/create-evaluation.dto';
+import { AudioReEvaluationDto, CreateEvaluationDto, TextReEvaluationDto } from './dto/create-evaluation.dto';
 import { UpdateEvaluationDto } from './dto/update-evaluation.dto';
 
 @Controller('evaluation')
@@ -11,6 +11,26 @@ export class EvaluationController {
   create(@Body() createEvaluationDto: CreateEvaluationDto) {
     return this.evaluationService.create(createEvaluationDto);
   }
+
+  
+  @Post('audio/reload')
+  async getAudiEmo(@Body() data : AudioReEvaluationDto) {
+    let index = data?.index;
+    return await this.evaluationService.getAudioEmotion(data.id,index);
+  }
+  
+  @Post('text/reload')
+  async gettextEmo(@Body() data : TextReEvaluationDto) {
+    let index = data?.index;
+    return await this.evaluationService.EvalTextemotion(data.id,index);
+  }
+
+  
+  @Get('submission/:id/test/reload')
+  async testReval(@Param('id') id: string) {
+    return await this.evaluationService.evalTest(id);
+  }
+
 
   
   @Get('getbysubid/:id')
@@ -40,8 +60,9 @@ export class EvaluationController {
   }
 
 
+
   
-  @Get('test/:id')
+  @Get('test/inst/:id')
   async findAllIns(@Param('id') id: string) {
     return await this.evaluationService.findAll(id);
   }

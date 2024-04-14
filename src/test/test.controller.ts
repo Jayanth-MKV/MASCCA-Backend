@@ -80,7 +80,8 @@ export class TestController {
   @Get('user/:testid')
   @UseGuards(StudentAuthGuard)
   async findOneU(@Param('testid') id: string) {
-    return await this.testService.findOneU(id);
+    const u = await this.testService.findOneU(id);
+    return u;
   }
 
   @Get('instructor/:id')
