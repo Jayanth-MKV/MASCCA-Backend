@@ -1,10 +1,12 @@
-import { BadRequestException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateInstructorDto } from './dto/create-instructor.dto';
 import { UpdateInstructorDto } from './dto/update-instructor.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Instructor, InstructorDocument } from 'src/models/instructor.schema';
 import { HashService } from 'src/hash/hash.service';
 import { Model } from 'mongoose';
+import { MailDto, MultiMailDto } from './dto/mail.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class InstructorService {
@@ -13,15 +15,70 @@ export class InstructorService {
     @InjectModel(Instructor.name)
     private instructorModel: Model<InstructorDocument>,
     private hashService: HashService,
+    private readonly userService: UserService,
   ) {
     this.logger = new Logger(InstructorService.name);
   }
 
-  async registerInstructor(CreateCreateInstructorDto: CreateInstructorDto) {
 
+  async sendInviteEmail(data: MailDto) {
+    let headersList = {
+      "Accept": "*/*",
+      "Content-Type": "application/json"
+     }
+     try{
+
+       const resp = await fetch(`${process.env.EMAIL_SERVICE_ENDPOINT}/send-email`,{
+         method:"POST",
+         body:JSON.stringify(data),
+         headers:headersList
+        });
+        
+        const job = await resp.json();
+        
+        return job;
+      }
+      catch(e){
+        throw new BadGatewayException("email server is down");
+      }
+  }
+
+  async sendMultipleInviteEmails(data: MultiMailDto[]) {
+    let headersList = {
+      "Accept": "*/*",
+      "Content-Type": "application/json"
+     }
+try{
+
+  const resp = await fetch(`${process.env.EMAIL_SERVICE_ENDPOINT}/send-multiple-emails`,{
+    method:"POST",
+    body:JSON.stringify(data),
+    headers: headersList
+  });
+  const job = await resp.json();
+  
+  return job;
+}
+catch(e){
+  throw new BadGatewayException("email server is down");
+}
+  }
+
+
+
+
+
+  async registerInstructor(CreateCreateInstructorDto: CreateInstructorDto) {
 
     // check if Instructor exists
     const Instructor = await this.findByEmail(CreateCreateInstructorDto.email);
+    const user = await this.userService.findByEmail(CreateCreateInstructorDto.email);
+
+    if (user) {
+      throw new BadRequestException(
+        `User with #${CreateCreateInstructorDto.email} already found`,
+      );
+    }
 
     if (Instructor) {
       throw new BadRequestException(
@@ -38,12 +95,13 @@ export class InstructorService {
       createInstructor.password,
     );
 
-    await createInstructor.save();
+    const us = await createInstructor.save();
     return {
       message: 'Instructor created successfully',
       status: HttpStatus.CREATED,
-      data: {
-        id: createInstructor._id,
+      user: {
+        email: createInstructor.email,
+        id:us?._id
       },
     };
   }
@@ -85,11 +143,17 @@ export class InstructorService {
   async getPassByEmail(email: string) {
     const existinginstructor = await this.instructorModel
       .findOne({ email })
-      .select('+password');
+      .select('+password').select("+type");
     if (!existinginstructor) {
       this.logger.error(`instructor #${email} not found`);
       return null;
     }
+    
+    if(existinginstructor.type !="CRED"){
+      this.logger.error(`instructor #${existinginstructor.type} login cannot login via cred`);
+      return null;
+    }
+
     return existinginstructor;
   }
 

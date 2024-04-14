@@ -1,34 +1,74 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Req, UseGuards } from '@nestjs/common';
 import { SubmissionService } from './submission.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { SaveAudioSubmissionDto, SaveTextSubmissionDto } from './dto/save-text-submission.dto';
+import { EvaluationService } from 'src/evaluation/evaluation.service';
+import { SubmissionInterceptor } from './submission.interceptor';
+import { StudentAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('submission')
+@ApiTags('user')
+@UseGuards(StudentAuthGuard)
 export class SubmissionController {
-  constructor(private readonly submissionService: SubmissionService) {}
+  constructor(private readonly submissionService: SubmissionService,
+    private readonly evaluationService: EvaluationService
+    ) {}
 
   @Post()
-  create(@Body() createSubmissionDto: CreateSubmissionDto) {
-    return this.submissionService.create(createSubmissionDto);
+  async create(@Body() createSubmissionDto: CreateSubmissionDto) {
+    const sub = await this.submissionService.create(createSubmissionDto);
+    const _ = await  this.evaluationService.create({submissionId:sub._id,...createSubmissionDto});
+    
+    return sub;
   }
 
-  @Get()
-  findAll() {
-    return this.submissionService.findAll();
+  @Post('text')
+  @UseInterceptors(SubmissionInterceptor) // Apply interceptor to this method
+  async updatetext(@Body() saveTextSubmissionDto: SaveTextSubmissionDto) {
+    return await this.submissionService.saveAnswer(saveTextSubmissionDto);
   }
+
+  @Post('audio')
+  @UseInterceptors(SubmissionInterceptor) // Apply interceptor to this method
+  async updateaudio(@Body() saveAudioSubmissionDto: SaveAudioSubmissionDto) {
+    return await this.submissionService.saveAudio(saveAudioSubmissionDto);
+  }
+
+  @Post('test/:id')
+  // @UseInterceptors(SubmissionInterceptor) // Apply interceptor to this method
+  async submitTest(@Param('id') id:string) {
+    return await this.submissionService.submitTest(id);
+  }
+
+  @Get('user/mytests')
+  async findAll(@Req() req: Request) {
+    const user = (req as any)?.user;
+    return await this.submissionService.findAll(user?.id);
+  }
+
+
+  @Get('all/:testId')
+  async findAllT(@Param('testId') id:string) {
+    return await this.submissionService.findAll(id);
+  }
+
+
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.submissionService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.submissionService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSubmissionDto: UpdateSubmissionDto) {
-    return this.submissionService.update(+id, updateSubmissionDto);
+  @UseInterceptors(SubmissionInterceptor) // Apply interceptor to this method
+  async update(@Param('id') id: string, @Body() updateSubmissionDto: UpdateSubmissionDto) {
+    return await this.submissionService.update(id, updateSubmissionDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.submissionService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.submissionService.remove(id);
   }
 }

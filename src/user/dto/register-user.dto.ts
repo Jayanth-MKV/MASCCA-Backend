@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -30,6 +31,11 @@ export class RegisterUserDto {
   @IsString()
   @IsNotEmpty()
   readonly department: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  type: string;
 
   @ApiProperty()
   @IsString()

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateSubQuestionDto {
   @IsString()
@@ -11,10 +11,12 @@ export class UpdateSubQuestionDto {
   content: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty()
-  powerReference: string;
-
+  powerReference?: string;
+  
   @IsString()
+  @IsOptional()
   @ApiProperty()
-  correctAnswer: string;
+  correctAnswer?: string;
 }

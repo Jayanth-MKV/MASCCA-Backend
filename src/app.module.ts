@@ -14,13 +14,16 @@ import { PassportModule } from '@nestjs/passport';
 import { iLocalStrategy, sLocalStrategy } from './auth/strategies/local-strategy';
 import { InstructorJWTStrategy, StudentJWTStrategy } from './auth/strategies/jwt.strategy';
 import { SupabaseProvider } from './providers/supabase.provider';
-import { TestService } from './test/test.service';
 import { UploadService } from './upload/upload.service';
 import { TestModule } from './test/test.module';
 import { QuestionModule } from './question/question.module';
 import { SubQuestionModule } from './sub-question/sub-question.module';
 import { SubmissionModule } from './submission/submission.module';
 import { EvaluationModule } from './evaluation/evaluation.module';
+import { GoogleStrategy } from './auth/strategies/google-oauth.strategy';
+import { BullModule } from '@nestjs/bull';
+import { AudioProcessor } from './app.processor';
+import { EvaluationService } from './evaluation/evaluation.service';
 
 @Module({
   imports: [
@@ -37,6 +40,23 @@ import { EvaluationModule } from './evaluation/evaluation.module';
           .required(),
       }),
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          username: configService.get<string>('REDIS_USER'),
+          password: configService.get<string>('REDIS_PASS'),
+          tls: {
+            host: configService.get<string>('REDIS_HOST'),
+            port: Number(configService.get<string>('REDIS_PORT')) || 6379,
+          },
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    BullModule.registerQueue({
+      name: 'audio',
+    }),
     ConditionalModule.registerWhen(
       MongooseModule.forRootAsync({
         imports: [ConfigModule],
@@ -52,16 +72,17 @@ import { EvaluationModule } from './evaluation/evaluation.module';
       imports: [ConfigModule],
       global: true,
       useFactory: async (configService: ConfigService) => {
-       
+
         console.log(
           'JWT Module Registered - ');
-       
-       return {
+
+        return {
           secret: configService.get<string>('JWT_SECRET'),
-            signOptions: {
-            expiresIn: '6d',
-        },
-    }},
+          signOptions: {
+            expiresIn: configService.get<string>('JWT_EXPIRY'),
+          },
+        }
+      },
       inject: [ConfigService],
     }),
     AuthModule,
@@ -75,6 +96,7 @@ import { EvaluationModule } from './evaluation/evaluation.module';
   ],
   controllers: [AppController],
   providers: [
+    AudioProcessor,
     SupabaseProvider,
     AppService,
     HashService,
@@ -84,6 +106,8 @@ import { EvaluationModule } from './evaluation/evaluation.module';
     StudentJWTStrategy,
     InstructorJWTStrategy,
     UploadService,
+    GoogleStrategy,
+    EvaluationService
   ],
 })
 export class AppModule {

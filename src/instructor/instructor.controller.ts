@@ -5,6 +5,7 @@ import { UpdateInstructorDto } from './dto/update-instructor.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { InstructorAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UploadService } from 'src/upload/upload.service';
+import { MailDto, MultiMailDto } from './dto/mail.dto';
 
 @Controller('instructor')
 @ApiTags('instructor')
@@ -20,6 +21,17 @@ export class InstructorController {
   @Delete('test/:folderName')
   async deleteFolder(@Param('folderName') folderName: string): Promise<void> {
     return await this.uploadService.deleteFolderInSupabase(folderName);
+  }
+
+
+  @Post('sendinviteemail')
+  sendEmail(@Body() MailDto: MailDto) {
+    return this.instructorService.sendInviteEmail(MailDto);
+  }
+
+  @Post('sendinviteemails')
+  sendEmails(@Body() MultiMailDto: MultiMailDto[]) {
+    return this.instructorService.sendMultipleInviteEmails(MultiMailDto);
   }
 
   @Post()

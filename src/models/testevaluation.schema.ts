@@ -3,42 +3,42 @@ import { Document, SchemaTypes } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class TestEvaluation {
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'Test' })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'UserSubmission', required: true })
+  submissionId: string;
+
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'Test', required: true })
   testId: string;
 
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'User' })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'User', required: true })
   userId: string;
+
+  @Prop({ default: "" })
+  testConfidence: string;
 
   @Prop({
     required: true,
-    type: [
+    name: "results",
+    type: SchemaTypes.Array,
+    default: [
       {
-        qid: { type: SchemaTypes.ObjectId, ref: 'Question' },
         question_confidence: Number,
-        subQ: [
-          {
-            sqid: { type: SchemaTypes.ObjectId, ref: 'SubQuestion' },
-            type: String,
-            sub_question_confidence: Number,
-            audiotextRelevancy: Number,
-            emotion: String,
-          },
-        ],
-      },
+        audioEmotion: String,
+        videoEmotion: String,
+        correctAnswer: Number,
+        audiotextRelevancy: Number,
+        time: String,
+      }
     ],
   })
-    
-  results: Array<{
-    qid: string;
-    question_confidence: number;
-    subQ: Array<{
-      sqid: string;
-      type: 'TEXT' | 'AUDIO';
-      sub_question_confidence: number;
-      audiotextRelevancy: number;
-      emotion: string;
-    }>;
-  }>;
+
+  results: [{
+    question_confidence: Number;
+    correctAnswer: boolean;
+    audioEmotion: string;
+    videoEmotion: string;
+    audiotextRelevancy: Number;
+    time: String;
+  }];
 }
 
 export type TestEvaluationDocument = TestEvaluation & Document;

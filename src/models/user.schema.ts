@@ -24,8 +24,11 @@ export class User {
   @Prop({ lowercase: true, unique: true, required: true })
   email: string;
 
-  @Prop({ select: false, required: true })
+  @Prop({ select: false })
   password: string;
+
+  @Prop({default:"CRED"})
+  type:string;
 }
 
 export type UserDocument = User & Document;

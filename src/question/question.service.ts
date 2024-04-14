@@ -8,6 +8,7 @@ import {
   SubQuestion,
   SubQuestionDocument,
 } from 'src/models/subquestion.schema';
+import { getTestFields, objectParser } from 'src/utils/helpers';
 
 @Injectable()
 export class QuestionService {
@@ -68,7 +69,22 @@ export class QuestionService {
         this.logger.error(`questions data not found!`);
         throw new NotFoundException('questions data not found!');
       }
-      return questionData;
+
+      const allFields = await getTestFields(this.subQuestionModel);
+
+      const arr = [];
+      for( let ques of questionData ){
+
+        const subQuestionData = await this.subQuestionModel.find({
+          questionId: ques._id,
+        });
+        const sqR = await Promise.all(subQuestionData.map(async (item)=>(await objectParser(item,allFields))));
+
+        // console.log(sqR)
+        arr.push({"question":ques,"subquestion":sqR});
+      }
+
+    return arr ;
     } catch (e) {
       throw new NotFoundException('questions data not found!');
     }
@@ -90,12 +106,22 @@ export class QuestionService {
       this.logger.error(`cannot access question`);
       throw new NotFoundException(`cannot access question #${id} - not found`);
     }
+
     if (!existingquestion) {
       this.logger.error(`question #${id} not found`);
 
       throw new NotFoundException(`question #${id} not found`);
     }
-    return existingquestion;
+
+    const subQuestionData = await this.subQuestionModel.find({
+      questionId: id,
+    });
+    if (!subQuestionData || subQuestionData.length == 0) {
+      this.logger.error(`subQuestions data not found!`);
+      throw new NotFoundException('subQuestions data not found!');
+    }
+
+    return {...existingquestion,"subquestion":subQuestionData};
   }
 
   async update(id: string, updateQuestionDto: UpdateQuestionDto) {

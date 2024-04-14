@@ -10,35 +10,54 @@ export class UserSubmission {
   @Prop({ required: true, type: SchemaTypes.ObjectId, ref: 'User' })
   userId: string;
 
+  @Prop({default:false})
+  submitted : boolean
+
   @Prop({
-    required: true,
-    type: [
+      required: true,
+      name:"answers",
+    type:SchemaTypes.Array,
+    default:[
       {
         qid: { type: SchemaTypes.ObjectId, ref: 'Question' },
-        subQ: [
+        topic: { type:String },
+        content: { type: String },
+        subQ:{ 
+          name:"subQ",
+          type: SchemaTypes.Array ,
+          default:[
           {
             sqid: { type: SchemaTypes.ObjectId, ref: 'SubQuestion' },
             type: String,
             answer: String,
+            emotion:String,
             audiofileurl: String,
             audiototext: String,
             timeTaken: String,
+            title:String,
+            content:String,
           },
-        ],
+        ],}
       },
-    ],
-  })
-  answers: Array<{
+    ]
+  }
+    )
+  answers: [{
     qid: string;
-    subQ: Array<{
+    topic:String;
+    content:String;
+    subQ:[{
       sqid: string;
       type: 'TEXT' | 'AUDIO';
-      answer: string;
+      answer?: string;
+      emotion?:string,
       audiofileurl?: string;
       audiototext?: string;
       timeTaken?: string;
-    }>;
-  }>;
+      title?:String;
+      content?:String;
+    }]
+  }];
 }
 
 export type UserSubmissionDocument = UserSubmission & Document;

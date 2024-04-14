@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateTestDto } from './create-test.dto';
-import { IsDateString, IsNumber, IsString } from 'class-validator';
+// import { CreateTestDto } from './create-test.dto';
+import { IsBoolean, IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateTestDto {
   @IsString()
@@ -31,7 +31,16 @@ export class UpdateTestDto {
   @ApiProperty()
   endTime: Date;
 
-  @IsString()
-  @ApiProperty()
+  // @IsString()
+  // @ApiProperty()
+  // @IsOptional()
+  // published: boolean;
+}
+
+
+export class updatePubDto{
+
+   @IsBoolean()
+   @ApiProperty()
   published: boolean;
 }
