@@ -191,7 +191,7 @@ export class SubmissionService {
     });
 
     const job = await this.audioQueue.add('test-submitted', { id });
-    console.log(job.data)
+    // console.log(job.data)
     return {
       id: qs?._id,
       message: "test submitted successfully ",
@@ -224,10 +224,24 @@ export class SubmissionService {
 
 
 
-  async findAll(id: String) {
-    return await this.submissionModel.find({
+  async findAll(id: string) {
+    const all =  await this.submissionModel.find({
       userId: id as any
     }).sort({ createdAt: 1 });
+
+    const testD = await Promise.all(
+      all.map(async (item)=>{
+        const tes = await this.testModel.findById(item?.testId);
+        return {
+          ...item.toJSON(),
+          title:tes.title,
+          keywords:tes.keywords,
+        }
+
+      })
+    )
+
+    return testD;
   }
 
   async findAllT(id: String) {

@@ -31,7 +31,7 @@ export class SubQuestionService {
   }
 
   async findOneU(id: string) {
-    const existingsubQuestion = await this.subQuestionModel.findById(id).select("-correctAnswer");
+    const existingsubQuestion = await this.subQuestionModel.findById(id);
     if (!existingsubQuestion) {
       this.logger.error(`subQuestion #${id} not found`);
 

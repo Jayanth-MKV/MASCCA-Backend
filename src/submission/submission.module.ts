@@ -11,6 +11,8 @@ import { SubQuestionService } from 'src/sub-question/sub-question.service';
 import { EvaluationService } from 'src/evaluation/evaluation.service';
 import { TestEvaluation, TestEvaluationSchema } from 'src/models/testevaluation.schema';
 import { BullModule } from '@nestjs/bull';
+import { UploadService } from 'src/upload/upload.service';
+import { SupabaseProvider } from 'src/providers/supabase.provider';
 
 @Module({
   imports:[
@@ -24,7 +26,7 @@ import { BullModule } from '@nestjs/bull';
     }),
   ],
   controllers: [SubmissionController],
-  providers: [SubmissionService,QuestionService,SubQuestionService,EvaluationService],
+  providers: [SubmissionService,QuestionService,SubQuestionService,EvaluationService,UploadService,SupabaseProvider],
   exports:[MongooseModule,SubmissionService]
 })
 export class SubmissionModule {}

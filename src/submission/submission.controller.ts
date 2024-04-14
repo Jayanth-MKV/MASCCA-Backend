@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Req, UseGuards } from '@nestjs/common';
 import { SubmissionService } from './submission.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { UpdateSubmissionDto } from './dto/update-submission.dto';
@@ -6,9 +6,11 @@ import { ApiTags } from '@nestjs/swagger';
 import { SaveAudioSubmissionDto, SaveTextSubmissionDto } from './dto/save-text-submission.dto';
 import { EvaluationService } from 'src/evaluation/evaluation.service';
 import { SubmissionInterceptor } from './submission.interceptor';
+import { StudentAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('submission')
 @ApiTags('user')
+@UseGuards(StudentAuthGuard)
 export class SubmissionController {
   constructor(private readonly submissionService: SubmissionService,
     private readonly evaluationService: EvaluationService
@@ -40,9 +42,10 @@ export class SubmissionController {
     return await this.submissionService.submitTest(id);
   }
 
-  @Get('user/:userId')
-  async findAll(@Param('userId') id:string) {
-    return await this.submissionService.findAll(id);
+  @Get('user/mytests')
+  async findAll(@Req() req: Request) {
+    const user = (req as any)?.user;
+    return await this.submissionService.findAll(user?.id);
   }
 
 

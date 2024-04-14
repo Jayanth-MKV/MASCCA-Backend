@@ -5,6 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TestEvaluation, TestEvaluationSchema } from 'src/models/testevaluation.schema';
 // import { Question, QuestionSchema } from 'src/models/question.schema';
 import { SubmissionModule } from 'src/submission/submission.module';
+import { UploadService } from 'src/upload/upload.service';
+import { SupabaseProvider } from 'src/providers/supabase.provider';
 
 @Module({
   imports:[
@@ -12,7 +14,7 @@ import { SubmissionModule } from 'src/submission/submission.module';
     SubmissionModule
   ],
   controllers: [EvaluationController],
-  providers: [EvaluationService],
+  providers: [EvaluationService,UploadService,SupabaseProvider],
   exports:[EvaluationService,MongooseModule]
 })
 export class EvaluationModule {}

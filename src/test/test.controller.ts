@@ -30,7 +30,7 @@ export class TestController {
   @UseGuards(InstructorAuthGuard)
   async create(@Body() createTestDto: CreateTestDto, @Req() req: any) {
     const id = req?.user?.id;
-    console.log(id)
+    //console.log(id)
     return await this.testService.create(createTestDto, id);
   }
 

@@ -52,6 +52,7 @@ export class TestService {
     const testSecret = await generateRandomToken();
     return await this.testModel.create({
       title: createTestDto.title,
+      about: createTestDto.about,
       keywords:createTestDto.keywords,
       createdBy: id,
       testSecret,
@@ -79,7 +80,7 @@ export class TestService {
     try {
       const testData = await this.testModel.find({
         published: true,
-      }).select(["title","_id"]);
+      }).select(["title","_id","keywords"]);
       console.log(testData)
       if (!testData || testData.length == 0) {
         this.logger.error(`tests not found!`);

@@ -14,7 +14,6 @@ export class UserSubmission {
   submitted : boolean
 
   @Prop({
-  
       required: true,
       name:"answers",
     type:SchemaTypes.Array,

@@ -2,27 +2,29 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } fro
 import { SubQuestionService } from './sub-question.service';
 import { UpdateSubQuestionDto } from './dto/update-sub-question.dto';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
-import { InstructorAuthGuard } from 'src/auth/guards/jwt.guard';
+import { InstructorAuthGuard, StudentAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('subquestion')
 @ApiTags('instructor')
 @ApiBearerAuth()
-@UseGuards(InstructorAuthGuard)
 export class SubQuestionController {
   constructor(private readonly subQuestionService: SubQuestionService) {}
-
+  
   @Get(':questionid')
+  @UseGuards(InstructorAuthGuard)
   findAll(@Param('questionid') id: string) {
     return this.subQuestionService.findAll(id);
   }
-
-  // @ApiTags('user')
-  // @Get('user/:id')
-  // findOneU(@Param('id') id: string) {
-  //   return this.subQuestionService.findOneU(id);
-  // }
-
+  
+  @ApiTags('user')
+  @Get('user/:id')
+  @UseGuards(StudentAuthGuard)
+  async findOneU(@Param('id') id: string) {
+    return await this.subQuestionService.findOneU(id);
+  }
+  
   @Get('instructor/:id')
+  @UseGuards(InstructorAuthGuard)
   @ApiParam({
     name: 'give question id to get sub questions',
   })
@@ -30,8 +32,9 @@ export class SubQuestionController {
     const user = (req as any)?.user;
     return this.subQuestionService.findOneI(id, (user as any)?.id);
   }
-
+  
   @Patch(':id')
+  @UseGuards(InstructorAuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateSubQuestionDto: UpdateSubQuestionDto,
@@ -40,6 +43,7 @@ export class SubQuestionController {
   }
 
   @Delete(':id')
+  @UseGuards(InstructorAuthGuard)
   remove(@Param('id') id: string) {
     return this.subQuestionService.remove(id);
   }

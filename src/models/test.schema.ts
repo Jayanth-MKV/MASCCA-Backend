@@ -6,6 +6,9 @@ export class Test {
   @Prop()
   title: string;
 
+  @Prop()
+  about: string;
+
   @Prop({default:"You have 15 minutes to complete the test. Once you begin, the timer will start and cannot be paused. Please make sure you have a stable internet connection.  "})
   instructions: string;
 

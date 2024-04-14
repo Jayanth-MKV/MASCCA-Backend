@@ -8,7 +8,6 @@ import { UpdateEvaluationDto } from './evaluation/dto/update-evaluation.dto';
 import axios from 'axios';
 import * as FormData from 'form-data';
 import { Buffer } from 'node:buffer';
-import { Readable } from 'stream';
 
 
 interface jobInterface {

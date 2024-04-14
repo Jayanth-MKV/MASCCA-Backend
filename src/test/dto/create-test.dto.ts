@@ -5,6 +5,10 @@ export class CreateTestDto {
   @IsString()
   @ApiProperty()
   title: string;
+
+  @IsString()
+  @ApiProperty()
+  about: string;
   
   @IsArray()
   @ApiProperty()

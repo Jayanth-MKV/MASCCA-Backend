@@ -51,6 +51,8 @@ async uploadTrans(
 }
 
 
+
+
   // @Get('/audio/:testid')
   // async getData(@Param('testid') testid:string): Promise<any> {
   //   return this.uploadService.fetchDataFromSupabase(testid);
@@ -118,8 +120,6 @@ async uploadTrans(
   "fullPath": "audio/123-123-123-123/1711951742724_1322-1231-2312-312_OAF_back_happy.wav"
 }
 */
-
-
 
 
 
