@@ -24,6 +24,12 @@ export class EvaluationController {
     let index = data?.index;
     return await this.evaluationService.EvalTextemotion(data.id,index);
   }
+  
+  @Post('relevance/reload')
+  async getAudRel(@Body() data : AudioReEvaluationDto) {
+    let index = data?.index;
+    return await this.evaluationService.getAudioRelevancy(data.id,index);
+  }
 
   
   @Get('submission/:id/test/reload')

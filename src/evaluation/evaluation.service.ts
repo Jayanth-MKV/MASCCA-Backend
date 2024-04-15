@@ -11,6 +11,7 @@ import { UserSubmissionDocument } from 'src/models/usersubmission.schema';
 import { UploadService } from 'src/upload/upload.service';
 import axios from 'axios';
 import * as FormData from 'form-data';
+import { FRONTEND_URL, FRONTEND_URLS } from 'src/utils/constants';
 
 
 @Injectable()
@@ -84,7 +85,7 @@ export class EvaluationService {
 
       const apiResult = await axios.post(process.env.SER_ENDPOINT, formData);
 
-      // console.log(apiResult);
+      console.log(apiResult.data);
       // Update emotion using evaluation service
       const updateEvaluationDto = {
         audioEmotion: apiResult?.data?.emotion
@@ -98,6 +99,48 @@ export class EvaluationService {
     } catch (error) {
       // job.retry();
       console.error('Failed to predict audio emotion or update evaluation:', error);
+      throw error;
+    }
+
+  }
+
+  async getAudioRelevancy(id: string, index: string) {
+
+    const subq = await this.submissionService.findbyindex(id,index,"AUDIO");
+    let text: string ;
+    if(subq){
+    text = subq?.audiototext;
+    }
+
+    const sq = await this.submissionService.getAudioSQRel(subq.sqid);
+    let referenceText: string,title:string,content:string ;
+    if(sq){
+      referenceText = sq?.powerReference;
+      title=sq?.title,
+      content=sq?.content
+    }
+
+    console.log(sq)
+
+    try {
+
+      const apiResult = await axios.post(`${FRONTEND_URL}/api/get-relevance`, {text,referenceText,title,content});
+
+      // console.log(apiResult?.data);
+      const ds = apiResult?.data;
+      console.log(ds)
+      // Update emotion using evaluation service
+      const updateEvaluationDto = {
+        audiotextRelevancy: ds?.relevance
+      } as UpdateEvaluationDto;
+
+      const p = await this.updateBySubId(id, Number(index), updateEvaluationDto);
+      console.log("Evaluation Of Audio Relevancy Updated")
+      return p;
+      
+    } catch (error) {
+      // job.retry();
+      console.error('AI not responding or error while getting results', error);
       throw error;
     }
 
@@ -195,12 +238,23 @@ export class EvaluationService {
 
       const subquestionResults = await Promise.all(
         subq.map(async (subquestion) => {
+
           if (subquestion.type === "TEXT") {
             const answer = await this.submissionService.evalTextSQ(subquestion.sqid, sub.testId, subquestion.answer);
-            return { correctAnswer: answer || false }; // Update subquestion object
+            return { correctAnswer: answer || false,time:(subquestion.timeTaken && parseInt(subquestion.timeTaken)<0)?0:subquestion.timeTaken , videoEmotion:subquestion.emotion || "neutral" }; // Update subquestion object
           } else if (subquestion.type === "AUDIO") {
+
+            // const answer = await this.submissionService.evalAudioSQ(subquestion.sqid, sub.testId, subquestion.audiototext);
             // Implement logic for "AUDIO" type (optional)
-            return { audiotextRelevancy: 80 }; // Or modify subquestion object as needed
+            let op = {};
+            if(subquestion.audiototext==""){
+              op = {...op, audiotextRelevancy: 0 }; // Or modify subquestion object as needed
+            }
+            if(subquestion.audiofileurl==""){
+              op = {...op, audioEmotion: "NA" }; // Or modify subquestion object as needed
+            }
+            return op;
+
           } else {
             // Handle unsupported subquestion types (optional)
             throw new Error(`Unsupported subquestion type: ${subquestion.type}`);
@@ -211,7 +265,7 @@ export class EvaluationService {
       results[idx] = { ...results[idx], ...Object.assign({}, ...subquestionResults) }; // Update results object
     }
 
-    console.log(results);
+    // console.log(results);
 
     const p = await this.evaluationModel.findOneAndUpdate(ev._id, {
       results
@@ -240,32 +294,35 @@ export class EvaluationService {
       let videoEmotion = await this.getEmotionValue(question.videoEmotion);
       let audiotextRelevancy = question.audiotextRelevancy as number;
       let timeTaken = parseInt(question?.time.toString());
-      let timePercentage = ((timeTaken > 30) ? 60 - timeTaken / 60 : 1) * 100; // Convert time taken to percentage
+      console.log(timeTaken)
+      let timePercentage = ((timeTaken > 30) ? ((60 - timeTaken) / 60) : 1) * 100; // Convert time taken to percentage
 
 
-      const questionConfidence = (correctAnswerConfidence * 0.3) + (audioEmotion * 0.2) + (videoEmotion * 0.2) +
-        (audiotextRelevancy * 0.2) +
-        (timePercentage * 0.1);
+      const questionConfidence = ((correctAnswerConfidence * 0.4) + (audioEmotion * 0.2) + (videoEmotion * 0.2) +
+        (audiotextRelevancy * 0.1) +
+        (timePercentage * 0.1));
 
       console.log({
         correctAnswerConfidence, audioEmotion, videoEmotion, audiotextRelevancy, timePercentage, questionConfidence
       })
 
-      const l = await this.updateBySubId(id, idx, {
-        question_confidence: questionConfidence / 100,
+      const payload = {
+        question_confidence: (Number(questionConfidence.toFixed(2)) / 100),
         correctAnswer: question.correctAnswer,
         audioEmotion: question.audioEmotion,
         videoEmotion: question.videoEmotion,
         audiotextRelevancy: question.audiotextRelevancy as number,
         time: question.time.toString()
-      });
+      }
+
+      const l = await this.updateBySubId(id, idx, payload);
 
       sumConfidence += questionConfidence;
 
-      return questionConfidence;
+      return Number(questionConfidence.toFixed(2));
     }));
 
-    console.log(rr)
+    // console.log(rr)
 
     // Calculate test confidence
     const testConfidence = (sumConfidence / totalQuestions);
@@ -294,6 +351,8 @@ export class EvaluationService {
       case 'neutral':
         return 50;
       case 'sad':
+        return 0;
+      case 'NA':
         return 0;
       default:
         return 20;

@@ -222,8 +222,8 @@ async findbyindex(id:string,index:string,type:string) {
     const sq = await this.subquestionModel.findOne({
       _id:id, testId
     });
-    console.log(sq);
-    console.log({id,testId,answer});
+    // console.log(sq);
+    // console.log({id,testId,answer});
     
     if(!sq){
       return false; 
@@ -235,8 +235,14 @@ async findbyindex(id:string,index:string,type:string) {
     return false;
   }
 
-  async evalAudioSQ(id: string, testId: string, answer: string) {
-
+  // subquestion id
+  async getAudioSQRel(id: string) {
+    const sq = await this.subquestionModel.findOne({
+      _id:id,type:"AUDIO"
+    });
+    console.log(sq);
+    return sq;
+    // console.log({id,testId,answer});
   }
 
 
