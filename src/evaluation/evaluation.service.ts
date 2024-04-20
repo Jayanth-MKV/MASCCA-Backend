@@ -127,12 +127,19 @@ export class EvaluationService {
       const apiResult = await axios.post(`${FRONTEND_URL}/api/get-relevance`, {text,referenceText,title,content});
 
       // console.log(apiResult?.data);
-      const ds = apiResult?.data;
+      const ds = await apiResult?.data;
       console.log(ds)
+
+      let resR = ds?.relevance;
+      if(ds?.relevance=="0"){
+        resR=1;
+      }
+
       // Update emotion using evaluation service
       const updateEvaluationDto = {
-        audiotextRelevancy: ds?.relevance
+        audiotextRelevancy: resR
       } as UpdateEvaluationDto;
+      
 
       const p = await this.updateBySubId(id, Number(index), updateEvaluationDto);
       console.log("Evaluation Of Audio Relevancy Updated")
