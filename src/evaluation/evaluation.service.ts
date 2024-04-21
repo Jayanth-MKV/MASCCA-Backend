@@ -245,10 +245,10 @@ export class EvaluationService {
 
       const subquestionResults = await Promise.all(
         subq.map(async (subquestion) => {
-
+          // console.log("d",subquestion)
           if (subquestion.type === "TEXT") {
             const answer = await this.submissionService.evalTextSQ(subquestion.sqid, sub.testId, subquestion.answer);
-            return { correctAnswer: answer || false,time:(subquestion.timeTaken && parseInt(subquestion.timeTaken)<0)?0:subquestion.timeTaken , videoEmotion:subquestion.emotion || "neutral" }; // Update subquestion object
+            return { correctAnswer: answer || false,time:(!subquestion.timeTaken || (subquestion.timeTaken && parseInt(subquestion.timeTaken)<0))?60:subquestion.timeTaken , videoEmotion:subquestion.emotion || "neutral" }; // Update subquestion object
           } else if (subquestion.type === "AUDIO") {
 
             // const answer = await this.submissionService.evalAudioSQ(subquestion.sqid, sub.testId, subquestion.audiototext);
@@ -272,7 +272,7 @@ export class EvaluationService {
       results[idx] = { ...results[idx], ...Object.assign({}, ...subquestionResults) }; // Update results object
     }
 
-    // console.log(results);
+    // console.log("------------",results);
 
     const p = await this.evaluationModel.findOneAndUpdate(ev._id, {
       results
@@ -295,26 +295,26 @@ export class EvaluationService {
     let sumConfidence = 0;
 
     // Calculate confidence for each question and sum up
-    const rr = await Promise.all(results.map(async (question, idx) => {
+    const rr = await Promise.all(results.map(async (question, idx:number) => {
       let correctAnswerConfidence = question.correctAnswer ? 100 : 0;
       let audioEmotion = await this.getEmotionValue(question.audioEmotion);
       let videoEmotion = await this.getEmotionValue(question.videoEmotion);
       let audiotextRelevancy = question.audiotextRelevancy as number;
       let timeTaken = parseInt(question?.time.toString());
-      console.log(timeTaken)
+      // console.log(timeTaken)
       let timePercentage = ((timeTaken > 30) ? ((60 - timeTaken) / 60) : 1) * 100; // Convert time taken to percentage
 
 
-      const questionConfidence = ((correctAnswerConfidence * 0.4) + (audioEmotion * 0.2) + (videoEmotion * 0.2) +
-        (audiotextRelevancy * 0.1) +
-        (timePercentage * 0.1));
+      const questionConfidence = await this.getConfidence(correctAnswerConfidence,audioEmotion,videoEmotion,audiotextRelevancy,timePercentage);
 
-      console.log({
-        correctAnswerConfidence, audioEmotion, videoEmotion, audiotextRelevancy, timePercentage, questionConfidence
-      })
+      // console.log({
+      //   correctAnswerConfidence, audioEmotion, videoEmotion, audiotextRelevancy, timePercentage, questionConfidence
+      // })
+
+      const quesconf = (Number(questionConfidence.toFixed(2)));
 
       const payload = {
-        question_confidence: (Number(questionConfidence.toFixed(2)) / 100),
+        question_confidence: (quesconf / 100),
         correctAnswer: question.correctAnswer,
         audioEmotion: question.audioEmotion,
         videoEmotion: question.videoEmotion,
@@ -322,14 +322,18 @@ export class EvaluationService {
         time: question.time.toString()
       }
 
+      
+      // console.log("-------------"+idx+"-----------------")
+      // console.log(payload)
       const l = await this.updateBySubId(id, idx, payload);
-
+      // console.log(l["results"][idx])
+      
       sumConfidence += questionConfidence;
 
-      return Number(questionConfidence.toFixed(2));
+      return quesconf;
     }));
 
-    // console.log(rr)
+    console.log(rr)
 
     // Calculate test confidence
     const testConfidence = (sumConfidence / totalQuestions);
@@ -350,6 +354,14 @@ export class EvaluationService {
 
     return { testConfidence, confidenceLevel, "questions": rr, "eval": evs };
   }
+
+  private async getConfidence(correctAnswerConfidence:number,audioEmotion:number,videoEmotion:number,audiotextRelevancy:number,timePercentage:number): Promise<number> {
+    return ((correctAnswerConfidence * 0.4) + (audioEmotion * 0.2) + (videoEmotion * 0.2) +
+    (audiotextRelevancy * 0.1) +
+    (timePercentage * 0.1));
+  }
+
+  
 
   private async getEmotionValue(emotion: string): Promise<number> {
     switch (emotion) {
