@@ -269,6 +269,7 @@ async findbyindex(id:string,index:string,type:string) {
   }
 
   async findAllT(id: String) {
+    console.log("inside :",id)
     return await this.submissionModel.find({
       testId: id as any
     }).sort({ createdAt: 1 });

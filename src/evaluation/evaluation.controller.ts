@@ -64,13 +64,17 @@ export class EvaluationController {
   async getResultsReload(@Param('id') id: string) {
     return await this.evaluationService.getResults(id,true);
   }
-
-
-
   
   @Get('test/inst/:id')
   async findAllIns(@Param('id') id: string) {
     return await this.evaluationService.findAll(id);
   }
+  
+  @Get('test/user/:id')
+  async findAllUser(@Param('id') id: string) {
+    return await this.evaluationService.findAll(id);
+  }
+
+  
 
 }
