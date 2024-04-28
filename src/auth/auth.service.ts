@@ -32,7 +32,7 @@ export class AuthService {
     // check if Instructor exists
     const Instructor = await this.instructorService.findByEmail(user.email);
 
-    let id = Instructor._id;
+    let id = Instructor?._id;
     if (!Instructor) {
       const inst = await this.instructorService.registerInstructor({
         name: user.name,
@@ -74,7 +74,7 @@ export class AuthService {
       return null;
     }
     
-    let id = User._id;
+    let id = User?._id;
     const payload = {
       email: user.email,
       id: id,
