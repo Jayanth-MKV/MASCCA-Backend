@@ -9,7 +9,7 @@ import { UserService } from 'src/user/user.service';
 import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { FRONTEND_URL, FRONTEND_URLS } from 'src/utils/constants';
-import { Response } from 'express';
+import {  Response } from 'express';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -37,14 +37,25 @@ export class AuthController {
 
   @Get('callback/google')
   @UseGuards(GoogleOauthGuard)
-  async googleAuthCallback(@Req() req, @Res() res: Response) {
+  async googleAuthCallback(@Req() req:Request, @Res() res: Response) {
     try {
-      const token = await this.authService.oAuthLogin(req.user);
+      const token = await this.authService.oAuthLogin((req as any)?.user);
+    
+      // if(!token){
+      //   res.redirect(`${req.url}/auth/register`);
+      //   return;
+      // }
+      
       if(token?.user?.role=="STUDENT"){
         res.redirect(`${FRONTEND_URLS}/oauth?token=${token.access_token}&s_user=${JSON.stringify(token?.user)}`);
         return ;
       }
-      res.redirect(`${FRONTEND_URL}/oauth?token=${token.access_token}&i_user=${JSON.stringify(token?.user)}`);
+      else if(token?.user?.role=="INSTRUCTOR"){
+        res.redirect(`${FRONTEND_URL}/oauth?token=${token.access_token}&i_user=${JSON.stringify(token?.user)}`);
+        return ;
+      }
+      
+      
     } catch (err) {
       res.status(500).send({ success: false, message: err.message });
     }
