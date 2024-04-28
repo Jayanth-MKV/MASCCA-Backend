@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { TestService } from './test.service';
 import { CreateTestDto } from './dto/create-test.dto';
-import { updatePubDto, UpdateTestDto } from './dto/update-test.dto';
+import { updatePrivateDto, updatePubDto, UpdateTestDto } from './dto/update-test.dto';
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { InstructorAuthGuard, StudentAuthGuard } from 'src/auth/guards/jwt.guard';
 
@@ -58,6 +58,16 @@ export class TestController {
     return await this.testService.findAll(user?.id);
   }
 
+  @Get('all/search')
+  @UseGuards(StudentAuthGuard)
+  async findAllSearch(@Query('search') searchQuery: string) {
+    if (!searchQuery) {
+      return [];
+    }
+
+    return await this.testService.searchTests(searchQuery);
+  }
+
   @Get('all')
   @UseGuards(StudentAuthGuard)
   async findAllAv() {
@@ -94,16 +104,18 @@ export class TestController {
   @Patch(':id')
   @UseGuards(InstructorAuthGuard)
   update(@Param('id') id: string, @Body() updateTestDto: UpdateTestDto) {
-    console.log(updateTestDto)
     return this.testService.update(id, updateTestDto);
   }
 
   @Patch('publish/:id')
   @UseGuards(InstructorAuthGuard)
   publishTest(@Param('id') id: string, @Body() updatePubDto: updatePubDto) {
-    console.log(id)
-    console.log(updatePubDto)
     return this.testService.publishTest(id, updatePubDto);
+  }
+  @Patch('private/:id')
+  @UseGuards(InstructorAuthGuard)
+  makePrivateTest(@Param('id') id: string, @Body() updatePrivateDto: updatePrivateDto) {
+    return this.testService.MakePrivate(id, updatePrivateDto);
   }
 
   @Delete(':id')

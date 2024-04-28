@@ -1,7 +1,7 @@
 import { InstructorService } from 'src/instructor/instructor.service';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateTestDto } from './dto/create-test.dto';
-import { updatePubDto, UpdateTestDto } from './dto/update-test.dto';
+import { updatePubDto, UpdateTestDto, updatePrivateDto } from './dto/update-test.dto';
 import { Test, TestDocument } from 'src/models/test.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,7 +14,7 @@ export class TestService {
 
   constructor(
     @InjectModel(Test.name) private readonly testModel: Model<TestDocument>,
-    private readonly instructorService:InstructorService,
+    private readonly instructorService: InstructorService,
   ) {
     this.logger = new Logger(TestService.name);
   }
@@ -27,9 +27,9 @@ export class TestService {
   }
 
 
-  async getByIdAndSecret(id: string,testSecret:string) {
+  async getByIdAndSecret(id: string, testSecret: string) {
     const allFields = await getTestFields(this.testModel);
-    const existingtest = await this.testModel.findOne({_id:id,testSecret});
+    const existingtest = await this.testModel.findOne({ _id: id, testSecret });
     if (!existingtest) {
       this.logger.error(`test #${id} not found`);
 
@@ -37,7 +37,7 @@ export class TestService {
     }
     const user = await this.instructorService.findOne(existingtest.createdBy);
 
-    const testR = await objectParser(existingtest,allFields);
+    const testR = await objectParser(existingtest, allFields);
 
     testR["createdBy"] = user.name;
 
@@ -53,7 +53,7 @@ export class TestService {
     return await this.testModel.create({
       title: createTestDto.title,
       about: createTestDto.about,
-      keywords:createTestDto.keywords,
+      keywords: createTestDto.keywords,
       createdBy: id,
       testSecret,
     });
@@ -76,13 +76,37 @@ export class TestService {
   }
 
 
-  
+
+  async searchTests(searchQuery: string) {
+    try {
+      const testData = await this.testModel.find({
+        published: true,
+        private: false,
+        $or: [
+          { title: { $regex: searchQuery, $options: 'i' } }, // Search by title
+          { keywords: { $regex: searchQuery, $options: 'i' } }, // Search by keywords
+          { about: { $regex: searchQuery, $options: 'i' } }, // Search by about
+        ],
+      }).select(["title", "_id", "keywords", "about", "testSecret"]);
+
+      if (!testData || testData.length === 0) {
+        this.logger.error(`tests not found!`);
+        return [];
+        // throw new NotFoundException('tests not found!');
+      }
+
+      return testData;
+    } catch (error) {
+      throw new NotFoundException('Tests not found!');
+    }
+  }
+
   async findAllAvailable() {
     try {
       const testData = await this.testModel.find({
         published: true,
-      }).select(["title","_id","keywords","about"]);
-      console.log(testData)
+        private: false
+      }).select(["title", "_id", "keywords", "about", "testSecret"]);
       if (!testData || testData.length == 0) {
         this.logger.error(`tests not found!`);
         return [];
@@ -101,7 +125,7 @@ export class TestService {
         createdBy: id,
         published: true,
       });
-      if (!testData ) {
+      if (!testData) {
         this.logger.error(`tests data not found!`);
         return [];
 
@@ -124,7 +148,7 @@ export class TestService {
     }
     const user = await this.instructorService.findOne(existingtest.createdBy);
 
-    const testR = await objectParser(existingtest,allFields);
+    const testR = await objectParser(existingtest, allFields);
 
     testR["createdBy"] = user.name;
 
@@ -145,12 +169,13 @@ export class TestService {
 
       throw new NotFoundException(`test #${id} not found`);
     }
-    const testR = await objectParser(existingtest,allFields);
+    const testR = await objectParser(existingtest, allFields);
 
-    return testR;  }
+    return testR;
+  }
 
 
-    
+
 
   async update(id: string, updateTestDto: UpdateTestDto) {
     const existingtest = await this.testModel.findByIdAndUpdate(
@@ -167,11 +192,22 @@ export class TestService {
   }
 
   async publishTest(id: string, updatePubDto: updatePubDto) {
-    console.log({id,...updatePubDto})
     const existingtest = await this.testModel.findByIdAndUpdate(
       id,
       updatePubDto,
-      // { new: true },
+    );
+    if (!existingtest) {
+      this.logger.error(`test #${id} not found`);
+
+      throw new NotFoundException(`test #${id} not found`);
+    }
+    return existingtest;
+  }
+
+  async MakePrivate(id: string, updatePrivateDto: updatePrivateDto) {
+    const existingtest = await this.testModel.findByIdAndUpdate(
+      id,
+      updatePrivateDto,
     );
     if (!existingtest) {
       this.logger.error(`test #${id} not found`);

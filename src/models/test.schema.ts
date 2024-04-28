@@ -6,7 +6,7 @@ export class Test {
   @Prop()
   title: string;
   
-  @Prop({default:false})
+  @Prop({default:true})
   private: boolean;
 
   @Prop()

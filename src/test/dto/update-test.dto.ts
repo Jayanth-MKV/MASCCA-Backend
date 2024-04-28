@@ -44,3 +44,10 @@ export class updatePubDto{
    @ApiProperty()
   published: boolean;
 }
+
+export class updatePrivateDto{
+
+  @IsBoolean()
+  @ApiProperty()
+ private: boolean;
+}
