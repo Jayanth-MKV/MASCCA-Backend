@@ -66,7 +66,8 @@ export class TestService {
       });
       if (!testData || testData.length == 0) {
         this.logger.error(`tests data not found!`);
-        throw new NotFoundException('tests data not found!');
+        return [];
+        // throw new NotFoundException('tests data not found!');
       }
       return testData;
     } catch (e) {
@@ -80,11 +81,12 @@ export class TestService {
     try {
       const testData = await this.testModel.find({
         published: true,
-      }).select(["title","_id","keywords"]);
+      }).select(["title","_id","keywords","about"]);
       console.log(testData)
       if (!testData || testData.length == 0) {
         this.logger.error(`tests not found!`);
-        throw new NotFoundException('tests not found!');
+        return [];
+        // throw new NotFoundException('tests not found!');
       }
       return testData;
     } catch (e) {
@@ -101,7 +103,9 @@ export class TestService {
       });
       if (!testData ) {
         this.logger.error(`tests data not found!`);
-        throw new NotFoundException('tests data not found!');
+        return [];
+
+        // throw new NotFoundException('tests data not found!');
       }
       return testData;
     } catch (e) {

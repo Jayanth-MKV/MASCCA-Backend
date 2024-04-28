@@ -5,6 +5,9 @@ import { Document, SchemaTypes } from 'mongoose';
 export class Test {
   @Prop()
   title: string;
+  
+  @Prop({default:false})
+  private: boolean;
 
   @Prop()
   about: string;
