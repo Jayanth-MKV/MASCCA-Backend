@@ -255,6 +255,7 @@ export class EvaluationService {
             // Implement logic for "AUDIO" type (optional)
             let op = {};
             if(subquestion.audiototext==""){
+              // const audP= await this.submissionService.createJobAudio()
               op = {...op, audiotextRelevancy: 0 }; // Or modify subquestion object as needed
             }
             if(subquestion.audiofileurl==""){
@@ -333,8 +334,7 @@ export class EvaluationService {
       return quesconf;
     }));
 
-    console.log(rr)
-
+    
     // Calculate test confidence
     const testConfidence = (sumConfidence / totalQuestions);
 
@@ -348,6 +348,7 @@ export class EvaluationService {
 
     const confidenceLevel = await this.getConfidenceLevel(testConfidence);
 
+    console.log("rr - ",rr)
     // console.log("test confidence update: ", evs);
 
 

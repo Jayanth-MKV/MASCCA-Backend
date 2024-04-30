@@ -109,7 +109,7 @@ export class SubmissionService {
     obj["subQ"] = tps;
     sbarray[Number(index)] = obj;
 
-    console.log("sbarray: ", sbarray);
+    // console.log("sbarray: ", sbarray);
 
     const p = await this.submissionModel.findOneAndUpdate(qs._id, {
       answers: sbarray
@@ -142,17 +142,24 @@ export class SubmissionService {
     obj["subQ"] = tps;
     sbarray[Number(index)] = obj;
 
-    console.log("sbarray: ", sbarray);
+    // console.log("sbarray: ", sbarray);
 
     const p = await this.submissionModel.findOneAndUpdate(qs._id, {
       answers: sbarray
     }, { new: true });
 
   //   const job = await this.audioQueue.add('audio-emotion', { id, audiofileurl: audiofile, index },{
-  //     attempts: 2, // If job fails it will retry till 5 times
+  //     attempts: 1, // If job fails it will retry till 1 times
   //     backoff: 5000 // static 5 sec delay between retry
   //  });
     return p;
+  }
+
+  async createJobAudio(id:string,audiofile:string, index:number){
+    const job = await this.audioQueue.add('audio-emotion', { id, audiofileurl: audiofile, index },{
+          attempts: 1, // If job fails it will retry till 1 times
+          backoff: 5000 // static 5 sec delay between retry
+       });
   }
 
 
