@@ -77,7 +77,7 @@ export class SubmissionService {
       }),
     );
 
-    console.log(ans);
+    // console.log(ans);
     const sub = this.submissionModel.create({
       testId: createSubmissionDto.testId,
       userId: createSubmissionDto.userId,

@@ -11,7 +11,7 @@ import { UserSubmissionDocument } from 'src/models/usersubmission.schema';
 import { UploadService } from 'src/upload/upload.service';
 import axios from 'axios';
 import * as FormData from 'form-data';
-import { FRONTEND_URL, FRONTEND_URLS } from 'src/utils/constants';
+import { FRONTEND_URL } from 'src/utils/constants';
 
 
 @Injectable()
@@ -120,7 +120,7 @@ export class EvaluationService {
       content=sq?.content
     }
 
-    console.log(sq)
+    // console.log(sq)
 
     try {
 
@@ -185,16 +185,15 @@ export class EvaluationService {
       }
     });
 
-    console.log(resu);
+    // console.log(resu);
     const sub = this.evaluationModel.create({
       testId: createEvaluationDto.testId,
       userId: createEvaluationDto.userId,
       submissionId: createEvaluationDto.submissionId,
       results: resu,
     });
+
     return sub;
-
-
   }
 
   async findAll(id: string) {

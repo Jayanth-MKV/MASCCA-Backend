@@ -54,6 +54,9 @@ export class AuthController {
         res.redirect(`${FRONTEND_URL}/oauth?token=${token.access_token}&i_user=${JSON.stringify(token?.user)}`);
         return ;
       }
+      else{
+        res.redirect(`${FRONTEND_URLS}/auth/registeras`);
+      }
       
       
     } catch (err) {

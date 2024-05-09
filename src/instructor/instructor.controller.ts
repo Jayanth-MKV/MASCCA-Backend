@@ -34,10 +34,10 @@ export class InstructorController {
     return this.instructorService.sendMultipleInviteEmails(MultiMailDto);
   }
 
-  @Post()
-  create(@Body() createInstructorDto: CreateInstructorDto) {
-    return this.instructorService.create(createInstructorDto);
-  }
+  // @Post()
+  // create(@Body() createInstructorDto: CreateInstructorDto) {
+  //   return this.instructorService.create(createInstructorDto);
+  // }
 
   @Get()
   findAll() {

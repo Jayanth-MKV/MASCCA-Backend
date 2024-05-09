@@ -15,6 +15,12 @@ export class User {
   @Prop()
   gender: string;
 
+  @Prop({default:"FREE", select:false})
+  plan: string;
+
+  @Prop({default:0, select:false})
+  retry:number;
+
   @Prop()
   department: string;
 

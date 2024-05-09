@@ -7,15 +7,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
 
-  const config = new DocumentBuilder()
-    .setTitle('mascca')
-    .setDescription('The backend API for mascca - SER + Auth + Other Tasks')
-    .setVersion('0.1')
-    .addBearerAuth()
-    .build();
+  // const config = new DocumentBuilder()
+  //   .setTitle('mascca')
+  //   .setDescription('The backend API for mascca - SER + Auth + Other Tasks')
+  //   .setVersion('0.1')
+  //   .addBearerAuth()
+  //   .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  // const document = SwaggerModule.createDocument(app, config);
+  // SwaggerModule.setup('api', app, document);
 
   app.enableCors();
 
